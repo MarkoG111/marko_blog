@@ -4,7 +4,7 @@ import storage from 'redux-persist/lib/storage'
 
 import themeReducer from './theme/themeSlice'
 import userReducer from './user/userSlice'
-import notificationsReducer from './notificationsSlice'
+import notificationsReducer from './notification/notificationsSlice'
 
 const rootReducer = combineReducers({
   theme: themeReducer,

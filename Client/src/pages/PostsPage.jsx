@@ -61,7 +61,7 @@ export default function PostsPage() {
     }
 
     fetchPosts()
-  }, [currentPage, searchTerm, sortOrder, selectedCategories, showError])
+  }, [currentPage, searchTerm, sortOrder, selectedCategories])
 
   useEffect(() => {
     const fetchPostCategories = async () => {
@@ -83,7 +83,7 @@ export default function PostsPage() {
     }
 
     fetchPostCategories()
-  }, [showError])
+  }, [])
 
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value)

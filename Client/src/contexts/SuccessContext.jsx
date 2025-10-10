@@ -10,7 +10,11 @@ export const SuccessProvider = ({ children }) => {
 
   const showSuccess = (message) => {
     const id = `${Date.now()}-${Math.random()}`
-    setSuccessMessages((prevMessages) => [...prevMessages, { id, message }])
+    setSuccessMessages((prevMessages) => [...prevMessages, { id, message, fading: false }])
+
+    setTimeout(() => {
+      setSuccessMessages((prevMessages) => prevMessages.map((message) => message.id === id ? { ...message, fading: true } : message))
+    }, 3500)
 
     setTimeout(() => {
       setSuccessMessages((prevMessages) =>
@@ -26,7 +30,7 @@ export const SuccessProvider = ({ children }) => {
       {successMessages.map((success, index) => (
         <div
           key={success.id}
-          className="fixed top-32 right-4 bg-green-600 text-white p-4 rounded shadow-lg z-50"
+          className={`fixed top-32 right-4 bg-green-600 text-white p-4 rounded shadow-lg z-50 ease-in-out ${success.fading ? 'opacity-0 translate-y-4' : 'opacity-100 translate-y-0'}`}
           style={{
             top: `${32 + index * 80}px`,
             transform: 'translateY(0)',

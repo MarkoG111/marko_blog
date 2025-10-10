@@ -4,6 +4,7 @@ import { useSelector } from 'react-redux'
 
 const PostLikeButtons = ({ post, idPost, onPostVote, commentsNumber }) => {
   const { currentUser } = useSelector((state) => state.user)
+  console.log(currentUser);
 
   return (
     <div className="text-sm mb-8 mt-12 flex items-center justify-between gap-1">
@@ -42,13 +43,12 @@ PostLikeButtons.propTypes = {
   post: PropTypes.shape({
     likes: PropTypes.arrayOf(
       PropTypes.shape({
-        idUser: PropTypes.number.isRequired,
         status: PropTypes.number.isRequired,
       })
     ).isRequired,
+    idUser: PropTypes.number.isRequired,
   }).isRequired,
   idPost: PropTypes.number.isRequired,
-  idUser: PropTypes.number.isRequired,
   onPostVote: PropTypes.func.isRequired,
   commentsNumber: PropTypes.number.isRequired,
 }

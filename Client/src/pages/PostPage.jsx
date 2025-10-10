@@ -29,7 +29,7 @@ export default function PostPage() {
   const { currentUser } = useSelector(state => state.user)
 
   useEffect(() => {
-    const fethcPost = async () => {
+    const fetchPost = async () => {
       try {
         setLoading(true)
 
@@ -50,7 +50,7 @@ export default function PostPage() {
       }
     }
 
-    fethcPost()
+    fetchPost()
   }, [id, showError])
 
   const handlePostVote = async (idPost, status) => {

@@ -13,7 +13,7 @@ export default function Authors() {
   const { showError } = useError()
 
   useEffect(() => {
-    const fethcAuthors = async () => {
+    const fetchAuthors = async () => {
       try {
         const queryParams = new URLSearchParams({
           onlyAuthors: true,
@@ -40,7 +40,7 @@ export default function Authors() {
       }
     }
 
-    fethcAuthors()
+    fetchAuthors()
   }, [currentPage, showError])
 
   const onPageChange = (page) => setCurrentPage(page)

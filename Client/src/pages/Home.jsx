@@ -29,7 +29,7 @@ export default function Home() {
     }
 
     fetchHomePagePosts()
-  }, [showError])
+  }, [])
 
   return (
     <div>

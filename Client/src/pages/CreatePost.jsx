@@ -165,7 +165,7 @@ export default function CreatePost() {
         </div>
 
         <div className="flex gap-4 items-center justify-between border-4 border-teal-500 border-dotted p-3 mb-6 flex-wrap rounded-xl">
-          <FileInput type="file" id="fileInput" accept="image/*" onChange={(e) => setImageFile(e.target.files[0])} />
+          <FileInput type="file" id="fileInput" name="fileInput" accept="image/*" onChange={(e) => setImageFile(e.target.files[0])} />
           <Button type="button" gradientDuoTone="purpleToBlue" size="sm" outline onClick={handleUploadImage}>Upload Image</Button>
 
           {imagePreview && (

@@ -10,7 +10,7 @@ import { handleApiError } from "../utils/handleApiUtils"
 export default function UserDashPosts() {
   const { currentUser } = useSelector((state) => state.user)
 
-  const [userPosts, setUserPosts] = useState('')
+  const [userPosts, setUserPosts] = useState([])
   const [currentPage, setCurrentPage] = useState(1)
   const [pageCount, setPageCount] = useState(1)
   const [showModal, setShowModal] = useState(false)

@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types'
 import React, { createContext, useCallback, useEffect, useRef, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
-import { setUnreadCount } from "../redux/notificationsSlice"
+import { setUnreadCount } from "../redux/notification/notificationsSlice"
 import { useLocation } from "react-router-dom"
 import { useError } from "./ErrorContext"
 import { handleApiError } from "../utils/handleApiUtils"
@@ -135,6 +135,7 @@ export const NotificationsProvider = ({ children }) => {
       }
     }
 
+    // ?
     if (currentUser?.roleName === "Author" && currentUser?.id) {
       startSignalRConnection()
     }
