@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace EFDataAccess.Migrations
 {
     /// <inheritdoc />
-    public partial class AuthorRequests : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -90,7 +90,7 @@ namespace EFDataAccess.Migrations
                     FirstName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     LastName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Username = table.Column<string>(type: "nvarchar(40)", maxLength: 40, nullable: false),
-                    Password = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Password = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     Email = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     ProfilePicture = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     IdRole = table.Column<int>(type: "int", nullable: false),
@@ -107,7 +107,8 @@ namespace EFDataAccess.Migrations
                         name: "FK_Users_Roles_IdRole",
                         column: x => x.IdRole,
                         principalTable: "Roles",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -130,6 +131,65 @@ namespace EFDataAccess.Migrations
                     table.PrimaryKey("PK_AuthorRequests", x => x.Id);
                     table.ForeignKey(
                         name: "FK_AuthorRequests_Users_IdUser",
+                        column: x => x.IdUser,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Followers",
+                columns: table => new
+                {
+                    IdFollower = table.Column<int>(type: "int", nullable: false),
+                    IdFollowing = table.Column<int>(type: "int", nullable: false),
+                    FollowedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Followers", x => new { x.IdFollower, x.IdFollowing });
+                    table.ForeignKey(
+                        name: "FK_Followers_Users_IdFollower",
+                        column: x => x.IdFollower,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Followers_Users_IdFollowing",
+                        column: x => x.IdFollowing,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Notifications",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    IdUser = table.Column<int>(type: "int", nullable: false),
+                    FromIdUser = table.Column<int>(type: "int", nullable: true),
+                    Type = table.Column<int>(type: "int", nullable: false),
+                    Content = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: false),
+                    Link = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: false),
+                    IsRead = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Notifications", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Notifications_Users_FromIdUser",
+                        column: x => x.FromIdUser,
+                        principalTable: "Users",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Notifications_Users_IdUser",
                         column: x => x.IdUser,
                         principalTable: "Users",
                         principalColumn: "Id",
@@ -165,7 +225,8 @@ namespace EFDataAccess.Migrations
                         name: "FK_Posts_Users_IdUser",
                         column: x => x.IdUser,
                         principalTable: "Users",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -228,7 +289,7 @@ namespace EFDataAccess.Migrations
                         column: x => x.IdUser,
                         principalTable: "Users",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -255,7 +316,7 @@ namespace EFDataAccess.Migrations
                         column: x => x.IdPost,
                         principalTable: "Posts",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -293,7 +354,7 @@ namespace EFDataAccess.Migrations
                         column: x => x.IdUser,
                         principalTable: "Users",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateIndex(
@@ -317,6 +378,11 @@ namespace EFDataAccess.Migrations
                 column: "IdUser");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Followers_IdFollowing",
+                table: "Followers",
+                column: "IdFollowing");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Likes_IdComment",
                 table: "Likes",
                 column: "IdComment");
@@ -329,6 +395,16 @@ namespace EFDataAccess.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Likes_IdUser",
                 table: "Likes",
+                column: "IdUser");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Notifications_FromIdUser",
+                table: "Notifications",
+                column: "FromIdUser");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Notifications_IdUser",
+                table: "Notifications",
                 column: "IdUser");
 
             migrationBuilder.CreateIndex(
@@ -376,7 +452,13 @@ namespace EFDataAccess.Migrations
                 name: "AuthorRequests");
 
             migrationBuilder.DropTable(
+                name: "Followers");
+
+            migrationBuilder.DropTable(
                 name: "Likes");
+
+            migrationBuilder.DropTable(
+                name: "Notifications");
 
             migrationBuilder.DropTable(
                 name: "PostCategories");

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EFDataAccess.Migrations
 {
     [DbContext(typeof(BlogContext))]
-    [Migration("20240625161053_AuthorRequests")]
-    partial class AuthorRequests
+    [Migration("20251119185707_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -40,7 +40,8 @@ namespace EFDataAccess.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<int>("IdUser")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("IdUser");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
@@ -145,6 +146,24 @@ namespace EFDataAccess.Migrations
                     b.ToTable("Comments");
                 });
 
+            modelBuilder.Entity("Domain.Follower", b =>
+                {
+                    b.Property<int>("IdFollower")
+                        .HasColumnType("int");
+
+                    b.Property<int>("IdFollowing")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("FollowedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("IdFollower", "IdFollowing");
+
+                    b.HasIndex("IdFollowing");
+
+                    b.ToTable("Followers");
+                });
+
             modelBuilder.Entity("Domain.Image", b =>
                 {
                     b.Property<int>("Id")
@@ -221,6 +240,62 @@ namespace EFDataAccess.Migrations
                     b.HasIndex("IdUser");
 
                     b.ToTable("Likes");
+                });
+
+            modelBuilder.Entity("Domain.Notification", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("FromIdUser")
+                        .HasColumnType("int");
+
+                    b.Property<int>("IdUser")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsRead")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("Link")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
+
+                    b.Property<DateTime?>("ModifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FromIdUser");
+
+                    b.HasIndex("IdUser");
+
+                    b.ToTable("Notifications");
                 });
 
             modelBuilder.Entity("Domain.Post", b =>
@@ -397,7 +472,8 @@ namespace EFDataAccess.Migrations
 
                     b.Property<string>("Password")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<string>("ProfilePicture")
                         .IsRequired()
@@ -484,7 +560,7 @@ namespace EFDataAccess.Migrations
                     b.HasOne("Domain.User", "User")
                         .WithMany("Comments")
                         .HasForeignKey("IdUser")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("ParentComment");
@@ -492,6 +568,25 @@ namespace EFDataAccess.Migrations
                     b.Navigation("Post");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Domain.Follower", b =>
+                {
+                    b.HasOne("Domain.User", "FollowerUser")
+                        .WithMany("Followers")
+                        .HasForeignKey("IdFollower")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.User", "FollowingUser")
+                        .WithMany("Followings")
+                        .HasForeignKey("IdFollowing")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("FollowerUser");
+
+                    b.Navigation("FollowingUser");
                 });
 
             modelBuilder.Entity("Domain.Like", b =>
@@ -509,7 +604,7 @@ namespace EFDataAccess.Migrations
                     b.HasOne("Domain.User", "User")
                         .WithMany("Likes")
                         .HasForeignKey("IdUser")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Comment");
@@ -517,6 +612,24 @@ namespace EFDataAccess.Migrations
                     b.Navigation("Post");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Domain.Notification", b =>
+                {
+                    b.HasOne("Domain.User", "FromUser")
+                        .WithMany()
+                        .HasForeignKey("FromIdUser")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("Domain.User", "UserReceiver")
+                        .WithMany()
+                        .HasForeignKey("IdUser")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("FromUser");
+
+                    b.Navigation("UserReceiver");
                 });
 
             modelBuilder.Entity("Domain.Post", b =>
@@ -530,7 +643,7 @@ namespace EFDataAccess.Migrations
                     b.HasOne("Domain.User", "User")
                         .WithMany("Posts")
                         .HasForeignKey("IdUser")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Image");
@@ -549,7 +662,7 @@ namespace EFDataAccess.Migrations
                     b.HasOne("Domain.Post", "Post")
                         .WithMany("PostCategories")
                         .HasForeignKey("IdPost")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Category");
@@ -562,7 +675,7 @@ namespace EFDataAccess.Migrations
                     b.HasOne("Domain.Role", "Role")
                         .WithMany("Users")
                         .HasForeignKey("IdRole")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Role");
@@ -613,6 +726,10 @@ namespace EFDataAccess.Migrations
             modelBuilder.Entity("Domain.User", b =>
                 {
                     b.Navigation("Comments");
+
+                    b.Navigation("Followers");
+
+                    b.Navigation("Followings");
 
                     b.Navigation("Likes");
 
