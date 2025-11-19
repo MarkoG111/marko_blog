@@ -111,6 +111,12 @@ namespace API
                 app.UseDeveloperExceptionPage();
             }
 
+            using (var scope = app.ApplicationServices.CreateScope())
+            {
+                var context = scope.ServiceProvider.GetRequiredService<BlogContext>();
+                EFDataAccess.Seed.DataSeeder.SeedInitialData(context);
+            }
+
             app.UseDefaultFiles();
             // Adds middleware that allows the server to serve static files, such as HTML, CSS, JavaScript, and images.
             app.UseStaticFiles();

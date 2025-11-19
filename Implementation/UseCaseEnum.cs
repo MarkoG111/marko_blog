@@ -5,8 +5,8 @@ namespace Implementation
     public enum RoleEnum
     {
         Admin = 1,
-        Author = 2,
-        User = 3
+        User = 2,
+        Author = 3
     }
 
     public enum UseCaseEnum
