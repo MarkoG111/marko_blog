@@ -8,6 +8,14 @@ The system is built using **Clean Architecture** principles and follows the **CQ
 
 🔗 Live Demo https://gacho-dev.rs/marko-blog
 
+👨‍💻 Admin login: <br/>
+Username: admin <br/>
+Password: admin123
+
+👨‍💻 Author login: <br/>
+Username: emily_s <br/>
+Password: pass123
+
 ---
 
 ## 🧩 Database Schema 
