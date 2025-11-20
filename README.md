@@ -1,23 +1,26 @@
-# 📰 MyBlog  
+# 📰 Marko's Blog  
 
 **A full-stack blog platform built with ASP.NET Core 8.0 and React.js**  
 
-MyBlog is a modern blogging platform designed to provide users with an intuitive and interactive experience.  
+Marko's Blog is a modern blogging platform designed to provide users with an intuitive and interactive experience.  
 It enables users to create, edit, and follow blog posts, interact through comments and likes, and receive **real-time notifications** powered by SignalR.  
 The system is built using **Clean Architecture** principles and follows the **CQRS (Command Query Responsibility Segregation)** pattern for high scalability and maintainability.
 
 🔗 Live Demo https://gacho-dev.rs/marko-blog
 
+👨‍💻 Admin login: <br/>
+Username: admin <br/>
+Password: admin123
+
+👨‍💻 Author login: <br/>
+Username: emily_s <br/>
+Password: pass123
+
 ---
 
-## 🧩 Table of Contents  
-- [Key Features](#key-features)  
-- [Architecture Overview](#architecture-overview)  
-- [Technologies Used](#technologies-used)  
-- [Security](#security)  
-- [Performance and Scalability](#performance-and-scalability)  
-- [Folder Structure](#folder-structure)  
-- [Setup Instructions](#setup-instructions)  
+## 🧩 Database Schema 
+
+<img width="1684" height="1193" alt="database" src="https://github.com/user-attachments/assets/dff2f658-ed57-4b0c-9c1b-9921fa39fce2" />
 
 ---
 
@@ -94,39 +97,120 @@ MyBlog follows a **multi-layered architecture** adhering to **Clean Architecture
 
 ## 📁 Folder Structure  
 
-MyBlog/<br/>
-├── Domain/ # Core entities and business models <br/>
-├── EFDataAccess/ # Entity Framework configurations & DbContext <br/>
-├── Application/ # CQRS commands, queries, DTOs, validation <br/>
-├── Implementation/ # Services, repositories, SignalR hub, etc. <br/>
-├── API/ # ASP.NET Core Web API (Controllers, Middleware) <br/>
-└── Client/ # React.js frontend app <br/>
-
+```graphql
+MyBlog/
+├── Domain/           # Core entities and business models
+├── EFDataAccess/     # Entity Framework configurations, migrations & DbContext
+├── Application/      # CQRS commands & queries, DTOs, validation
+├── Implementation/   # Services, repositories, SignalR hub, etc.
+├── API/              # ASP.NET Core Web API (Controllers, Middleware, JWT)
+└── Client/           # React.js frontend app (Vite)
+```
 
 ---
 
 ## ⚡ Setup Instructions  
 
-### 🔧 Prerequisites  
-- .NET SDK 8.0+  
-- Node.js 18+  
-- SQL Server (local or remote)  
-
-### 📦 Backend Setup  
+### 🔧 1. Prerequisites 
+Install:
+- .NET SDK 8.0+
+- Node.js 18+
+- SQL Server Express (.\SQLEXPRESS)
+- EF Core CLI tool:
 ```bash
-cd API
-dotnet restore
-dotnet ef database update
-dotnet run
+dotnet tool install --global dotnet-ef --version 8.0.0
 ```
 
-### 💻 Frontend Setup
+### 🗄️ 2. Backend Appsettings
+Config for backend is in: `API/appsettings.Development.json`
+
+🔐 JWT
+```json
+"JWT": {
+    "Issuer": "http://localhost:5000",
+    "Audience": "BlogClient",
+    "SecretKey": "your-dev-secret-key-min-32-chars",
+    "TokenExpiryMinutes": 120
+},
+```
+
+✉ SMTP
+```json
+"SMTP": {
+    "SenderEmail": "noreply@yourdomain.com",
+    "Host": "smtp.yourdomain.com",
+    "Port": 587,
+    "Username": "noreply@yourdomain.com",
+    "Password": "your-smtp-password"
+}
+```
+
+### 🗃️ 3. Database Configuration
+The API uses appsettings.Development.json for the SQL Server connection.
+You MUST set your own instance name.
+Example (do NOT copy blindly):
+```json
+"ConnectionStrings": {
+  "DefaultConnection": "Server=DESKTOP-XXXXXXX\\SQLEXPRESS;Database=blog;Trusted_Connection=True;TrustServerCertificate=True"
+}
+```
+To find your SQL instance:
+- Open SQL Server Management Studio
+- On the login window → see Server Name
+- Or open SQL Server Configuration Manager → SQL Server Services
+- Use that instance name in the connection string
+
+Common examples:
+- DESKTOP-ABC123\SQLEXPRESS
+- (localdb)\MSSQLLocalDB
+- .\SQLEXPRESS
+
+### 🛠️ 4. Create Database
+Start migrations:
+```bash
+cd EFDataAccess
+dotnet ef database update
+```
+This creates the blog database automatically.
+
+### 🌱 5. Seed Initial Data
+
+Seeder will automatically start when you run API.
+```bash
+cd API
+dotnet run
+```
+If the database is empty, initial data will be inserted.
+
+### 💻 6. Frontend Environment Variables
+In folder `Client/` create `.env` <br/>
+It must be next to vite.config.js.
+
+🔥 Firebase
+```ini
+VITE_FIREBASE_API_KEY=AIzaSyBp3oi6SrSoQ8G3jrgzZKye4KSmrLCae7k
+VITE_FIREBASE_AUTH_DOMAIN=blog-a6b98.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=blog-a6b98
+VITE_FIREBASE_STORAGE_BUCKET=blog-a6b98.appspot.com
+VITE_FIREBASE_MESSAGING_SENDER_ID=311198757906
+VITE_FIREBASE_APP_ID=1:311198757906:web:3023a83a49eeb68fa494cb
+VITE_FIREBASE_MEASUREMENT_ID=G-TJWVQ5W4KH
+```
+
+### ▶️ 7. Start Backend
+```bash
+cd Api
+dotnet restore
+dotnet run
+```
+Backend URL: http://localhost:5000
+Swagger: http://localhost:5000/swagger
+
+### ▶️ 8. Start Frontend
 ```bash
 cd Client
 npm install
-npm start
+npm run dev
 ```
-
-The backend will run (by default) on https://localhost:5001, and the React client on http://localhost:3000.
-
+Frontend runs at: http://localhost:5173
 
