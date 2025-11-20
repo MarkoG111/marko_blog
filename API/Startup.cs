@@ -6,9 +6,12 @@ using Application.Commands.Email;
 using Implementation.Logging;
 using Implementation.Commands.Email;
 using Microsoft.OpenApi.Models;
-using Microsoft.AspNetCore.SignalR;
-using DotNetEnv;
 using API.Services;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using System.Text;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace API
 {
@@ -18,30 +21,25 @@ namespace API
 
         public Startup(IConfiguration configuration)
         {
-            Env.Load();
             _configuration = configuration;
         }
 
         public void ConfigureServices(IServiceCollection services)
         {
-            var jwtSettings = new JWTSettings();
-            var emailSettings = new EmailSettings();
-
-            _configuration.Bind(nameof(JWTSettings), jwtSettings);
-            _configuration.Bind(nameof(EmailSettings), emailSettings);
-
-            services.AddSingleton(jwtSettings);
-            services.AddSingleton(emailSettings);
-
             services.AddControllers();
 
-            services.AddDbContext<BlogContext>();
+            services.AddDbContext<BlogContext>(options =>
+                options.UseSqlServer(_configuration.GetConnectionString("DefaultConnection"))
+            );
 
-            services.AddScoped<JWTService>(provider =>
-            {
-                var settings = provider.GetRequiredService<JWTSettings>();
-                return new JWTService(settings.JwtIssuer, settings.JwtSecretKey);
-            });
+            services.Configure<JWTSettings>(_configuration.GetSection("JWT"));
+            services.Configure<SMTPSettings>(_configuration.GetSection("SMTP"));
+
+            services.AddSingleton(res => res.GetRequiredService<IOptions<JWTSettings>>().Value);
+            services.AddSingleton(res => res.GetRequiredService<IOptions<SMTPSettings>>().Value);
+
+            services.AddScoped<JWTService>();
+            services.AddScoped<JWTManager>();
 
             services.AddScoped<OAuthService>();
 
@@ -52,7 +50,29 @@ namespace API
             services.AddHttpContextAccessor();
             services.AddApplicationActor();
 
-            services.AddJWT(jwtSettings);
+            var jwtSettings = _configuration.GetSection("JWT").Get<JWTSettings>();
+            var key = Encoding.UTF8.GetBytes(jwtSettings.SecretKey);
+
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(options =>
+            {
+                options.RequireHttpsMetadata = false;
+                options.SaveToken = true;
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidIssuer = jwtSettings.Issuer,
+                    ValidateIssuer = true,
+                    ValidAudience = jwtSettings.Audience,
+                    ValidateAudience = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateIssuerSigningKey = true,
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero
+                };
+            });
 
             services.AddSignalR();
 

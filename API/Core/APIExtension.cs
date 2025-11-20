@@ -1,5 +1,3 @@
-using System.Text;
-
 using Application;
 
 using Application.Commands.Post;
@@ -52,8 +50,6 @@ using Implementation.Queries.Notification;
 using Implementation.Repositories;
 using Implementation.Services;
 
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 
 namespace API.Core
@@ -173,34 +169,6 @@ namespace API.Core
                 var actor = JsonConvert.DeserializeObject<JWTActor>(actorString);
 
                 return actor;
-            });
-        }
-
-        public static void AddJWT(this IServiceCollection services, JWTSettings jwtSettings)
-        {
-            services.AddScoped<JWTManager>();
-            
-            services.AddAuthentication(options =>
-            {
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultSignInScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
-            .AddJwtBearer(options =>
-            {
-                options.RequireHttpsMetadata = false;
-                options.SaveToken = true;
-                options.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidIssuer = jwtSettings.JwtIssuer,
-                    ValidateIssuer = true,
-                    ValidAudience = jwtSettings.JwtAudience,
-                    ValidateAudience = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.JwtSecretKey)),
-                    ValidateIssuerSigningKey = true,
-                    ValidateLifetime = true,
-                    ClockSkew = TimeSpan.Zero
-                };
             });
         }
     }
