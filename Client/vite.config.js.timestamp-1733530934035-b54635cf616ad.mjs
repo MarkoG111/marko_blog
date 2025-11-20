@@ -6,11 +6,11 @@ var vite_config_default = defineConfig({
     proxy: {
       "proxy": "http://localhost:5000",
       "/api": {
-        target: "http://localhost:5207",
+        target: "http://localhost:5000",
         secure: false
       },
       "/api/notificationsHub": {
-        target: "http://localhost:5207",
+        target: "http://localhost:5000",
         secure: false,
         ws: true
         // Enable WebSocket proxying

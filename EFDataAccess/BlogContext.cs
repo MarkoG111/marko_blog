@@ -7,6 +7,11 @@ namespace EFDataAccess
 {
   public class BlogContext : DbContext
   {
+    public BlogContext(DbContextOptions<BlogContext> options) : base(options)
+    {
+      
+    }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
       modelBuilder.ApplyConfiguration(new PostConfiguration());
@@ -30,11 +35,6 @@ namespace EFDataAccess
       modelBuilder.Entity<UserUseCase>().HasQueryFilter(x => !x.IsDeleted);
       modelBuilder.Entity<AuthorRequest>().HasQueryFilter(x => !x.IsDeleted);
       modelBuilder.Entity<Notification>().HasQueryFilter(x => !x.IsDeleted);
-    }
-
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-      optionsBuilder.UseSqlServer(@"Data Source=DESKTOP-V80TVTT\SQLEXPRESS;Initial Catalog=blog;Integrated Security=True;Connect Timeout=60;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
     }
 
     public override int SaveChanges()

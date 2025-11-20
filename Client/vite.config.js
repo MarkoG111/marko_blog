@@ -18,7 +18,7 @@ const proxyPaths = [
 ]
 
 const createProxyConfig = (path) => ({
-  target: 'http://localhost:5207',
+  target: 'http://localhost:5000',
   secure: false,
   changeOrigin: true,
   ws: path === '/api/notificationsHub',
