@@ -4,8 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Application.Commands.Email;
 using Application.DataTransfer.Emails;
-using Application.Settings;
 using System.Net;
+using Application.Settings;
 using System.Net.Mail;
 using Microsoft.Extensions.Options;
 
@@ -13,9 +13,9 @@ namespace Implementation.Commands.Email
 {
     public class SMTPEmailSender : IEmailSender
     {
-        private readonly EmailSettings _emailSettings;
+        private readonly SMTPSettings _emailSettings;
 
-        public SMTPEmailSender(IOptions<EmailSettings> emailSettings)
+        public SMTPEmailSender(IOptions<SMTPSettings> emailSettings)
         {
             _emailSettings = emailSettings.Value;
         }
@@ -24,15 +24,17 @@ namespace Implementation.Commands.Email
         {
             var smtp = new SmtpClient
             {
-                Host = _emailSettings.SmtpServer,
-                Port = _emailSettings.SmtpPort,
+                Host = _emailSettings.Host,
+                Port = _emailSettings.Port,
                 EnableSsl = true,
                 DeliveryMethod = SmtpDeliveryMethod.Network,
                 UseDefaultCredentials = false,
-                // Allow less security apps
-                Credentials = new NetworkCredential(_emailSettings.SenderEmail, _emailSettings.SenderPassword)
-            };
 
+                Credentials = new NetworkCredential(
+                    _emailSettings.Username,
+                    _emailSettings.Password
+                )
+            };
             var message = new MailMessage(_emailSettings.SenderEmail, dto.SendTo)
             {
                 Subject = dto.Subject,
