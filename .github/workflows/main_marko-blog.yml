@@ -62,4 +62,6 @@ jobs:
           app-name: 'marko-blog'
           slot-name: 'Production'
           package: .
+          resource-group-name: 'marko-blog-rg'  # Dodaj ovo!
+          cleanup: true  # Očisti stare fajlove
           
