@@ -15,7 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: DEBUG – List folders
+      - name: DEBUG - List folders
         run: |
           echo "=== CURRENT WORKING DIRECTORY ==="
           cd
@@ -69,3 +69,4 @@ jobs:
           package: .
           resource-group-name: 'marko-blog-rg'
           cleanup: true
+
