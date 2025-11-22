@@ -115,7 +115,7 @@ namespace API
             {
                 options.AddPolicy("AllowSpecificOrigin", builder =>
                 {
-                    builder.WithOrigins("http://localhost:5173")
+                    builder.WithOrigins("http://localhost:5173", "https://marko-blog-bfdqeaf7dqacb3e7.westeurope-01.azurewebsites.net/")
                            .AllowAnyMethod()
                            .AllowAnyHeader()
                            .AllowCredentials();
@@ -135,8 +135,6 @@ namespace API
             {
                 var context = scope.ServiceProvider.GetRequiredService<BlogContext>();
 
-                context.Database.EnsureDeleted();
-                context.Database.EnsureCreated();
 
                 EFDataAccess.Seed.DataSeeder.SeedInitialData(context);
             }
