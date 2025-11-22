@@ -25,12 +25,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+     
       - name: DEBUG – List folders
         run: |
-          echo "== ROOT =="
+          echo "=== CURRENT WORKING DIRECTORY ==="
+          cd
+          echo "=== LIST ROOT ==="
           dir
-          echo "== API =="
+          echo "=== LIST API ==="
           dir API || echo "API NOT FOUND"
+          
 
       - name: Set up .NET Core
         uses: actions/setup-dotnet@v4
@@ -81,4 +85,5 @@ jobs:
           resource-group-name: 'marko-blog-rg'  # Dodaj ovo!
           cleanup: true  # Očisti stare fajlove
           
+
 
