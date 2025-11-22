@@ -9,7 +9,14 @@ on:
       - main
   workflow_dispatch:
 
+  
+
+  
+
 jobs:
+
+
+  
   build:
     runs-on: windows-latest
     permissions:
@@ -18,16 +25,25 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: DEBUG – List folders
+        run: |
+          echo "== ROOT =="
+          dir
+          echo "== API =="
+          dir API || echo "API NOT FOUND"
+
       - name: Set up .NET Core
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.x'
 
       - name: Build with dotnet
-        run: dotnet build --configuration Release
+        run: dotnet build ./API/api.csproj --configuration Release
+
 
       - name: dotnet publish
-        run: dotnet publish -c Release -o "${{env.DOTNET_ROOT}}/myapp"
+        run: dotnet publish ./API/api.csproj -c Release -o "${{env.DOTNET_ROOT}}/myapp"
+
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
@@ -65,3 +81,4 @@ jobs:
           resource-group-name: 'marko-blog-rg'  # Dodaj ovo!
           cleanup: true  # Očisti stare fajlove
           
+
