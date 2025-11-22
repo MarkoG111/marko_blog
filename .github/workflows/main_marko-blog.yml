@@ -9,6 +9,10 @@ on:
 jobs:
   build:
     runs-on: windows-latest
+    defaults:
+      run:
+        shell: pwsh
+        working-directory: D:\a\marko_blog\marko_blog
     permissions:
       contents: read
 
@@ -69,3 +73,4 @@ jobs:
           package: .
           resource-group-name: 'marko-blog-rg'
           cleanup: true
+
