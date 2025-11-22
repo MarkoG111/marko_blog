@@ -75,3 +75,4 @@ jobs:
           resource-group-name: 'marko-blog-rg'
           cleanup: true
 
+
