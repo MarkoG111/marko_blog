@@ -9,6 +9,9 @@ import { handleApiError } from '../utils/handleApiUtils'
 import ChildComment from './ChildComment'
 import { getAvatarSrc } from "../utils/getAvatarSrc"
 
+import { updateComment } from "../api/commentsApi"
+import { getUser } from "../api/usersApi"
+
 export default function Comment({ comment, onLikeComment, onDislikeComment, onAddChildComment, childrenComments, onEditComment, onDeleteComment, setActiveReplyIdComment, activeReplyIdComment, comments }) {
   const { currentUser } = useSelector((state) => state.user)
 
@@ -26,26 +29,16 @@ export default function Comment({ comment, onLikeComment, onDislikeComment, onAd
   const { showError } = useError()
 
   useEffect(() => {
-    const getUser = async () => {
+    const load = async () => {
       try {
-        const response = await fetch(`/api/users/${comment.idUser}`, {
-          method: "GET"
-        })
-
-        if (response.ok) {
-          const data = await response.json()
-          setUser(data)
-        } else {
-          await handleApiError(response, showError)
-        }
-      } catch (error) {
-        showError(error.message)
+        const data = await getUser(comment.idUser)
+        setUser(data)
+      } catch (err) {
+        showError(err.message)
       }
     }
-
-    getUser()
-  }, [comment, showError])
-
+    load()
+  }, [comment.idUser])
 
   const openEdit = async () => {
     setIsEditing(true)
@@ -54,28 +47,11 @@ export default function Comment({ comment, onLikeComment, onDislikeComment, onAd
 
   const handleSave = async () => {
     try {
-      const token = localStorage.getItem("token")
-      if (!token) {
-        throw new Error("Token not found")
-      }
-
-      const response = await fetch(`/api/comments/${comment.id}`, {
-        method: "PUT",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ commentText: editedText })
-      })
-
-      if (response.ok) {
-        setIsEditing(false)
-        onEditComment(comment, editedText)
-      } else {
-        await handleApiError(response, showError)
-      }
-    } catch (error) {
-      showError(error.message)
+      await updateComment(comment.id, editedText)
+      onEditComment(comment, editedText)
+      setIsEditing(false)
+    } catch (err) {
+      showError(err.message)
     }
   }
 

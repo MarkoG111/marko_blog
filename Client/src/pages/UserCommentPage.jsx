@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react"
-import { useParams } from "react-router-dom"
+import { useParams, Link } from "react-router-dom"
 import { Button } from "flowbite-react"
 import { AiOutlineHeart } from "react-icons/ai"
 import { useError } from "../contexts/ErrorContext"
-import { handleApiError } from "../utils/handleApiUtils"
+
+import { getComment, getParentComment } from "../api/commentsApi"
 
 export default function UserCommentPage() {
   const { id } = useParams()
@@ -13,76 +14,65 @@ export default function UserCommentPage() {
   const { showError } = useError()
 
   useEffect(() => {
-    const fetchComment = async () => {
-      const response = await fetch(`/api/comments/${id}`, {
-        method: "GET"
-      })
-
-      if (response.ok) {
-        const data = await response.json()
-
+    const loadComment = async () => {
+      try {
+        const data = await getComment(id)
         setComment(data)
 
-        if (data.idParent != null) {
-          fetchParentComment(data.idParent)
+        if (data.idParent) {
+          const parent = await getParentComment(data.idParent)
+          setParentComment(parent)
         }
-      } else {
-        await handleApiError(response, showError)
+      } catch (err) {
+        showError(err.message)
       }
     }
 
-    const fetchParentComment = async (idParent) => {
-      const response = await fetch(`/api/comments/${idParent}`, {
-        method: "GET"
-      })
-
-      if (response.ok) {
-        const parentData = await response.json()
-        
-        setParentComment(parentData)
-      } else {
-        await handleApiError(response, showError)
-      }
-    }
-
-    fetchComment()
-  }, [id, showError])
+    loadComment()
+  }, [id])
 
   return (
-    <main className="flex flex-col max-w-3xl mx-auto min-h-96 bg-slate-100 dark:bg-gray-800 my-12 rounded-2xl">
-      {comment &&
+    <main className="flex flex-col max-w-3xl mx-auto my-12 rounded-2xl bg-slate-100 p-6">
+      {comment && (
         <>
-          <div className="px-10 py-6">
-            <p className="dark:text-gray-400 text-xl pb-3">Discussion on: <span className="text-3xl dark:text-white">{comment.postTitle}</span></p>
-            <Button gradientDuoTone='purpleToPink'><a href={`/post/${comment.idPost}`}>View post</a></Button>
-          </div>
-          {parentComment &&
-            <>
-              <div className="border-t-red-400 border-t-2 px-10 py-6">
-                <p className="dark:text-gray-400">Replies for: <a href={`/comment/${parentComment.id}`} className="dark:text-white">{parentComment.commentText}</a></p>
-              </div>
-            </>
-          }
-          <div className="border-t-red-400 border-t-2 px-10 pt-6">
-            <div>
+          <p className="text-xl mb-3 text-gray-600">
+            Discussion on:
+            <span className="text-3xl text-gray-900"> {comment.postTitle}</span>
+          </p>
 
+          <Button gradientDuoTone="purpleToPink">
+            <Link to={`/post/${comment.idPost}`}>View post</Link>
+          </Button>
+
+          {parentComment && (
+            <div className="border-t-2 border-red-400 mt-6 pt-4">
+              <p className="text-gray-500">
+                Reply to:
+                <Link to={`/comment/${parentComment.id}`} className="text-black dark:text-white ml-1">
+                  {parentComment.commentText}
+                </Link>
+              </p>
             </div>
-            <div className="border-red-400 border-2 p-4 rounded-md">
-              <div className="flex gap-x-2">
+          )}
+
+          <div className="border-t-2 border-red-400 mt-6 pt-4">
+            <div className="border-2 border-red-400 p-4 rounded-md">
+              <div className="flex gap-2">
                 <p>{comment.firstName} {comment.lastName}</p>
-                <span>&#183;</span>
+                <span>•</span>
                 <span>{new Date(comment.createdAt).toLocaleDateString()}</span>
               </div>
+
               <p className="pt-3">{comment.commentText}</p>
             </div>
           </div>
 
-          <div className="flex px-10 pt-2 gap-2">
+          <div className="flex gap-2 px-1 pt-3">
             <AiOutlineHeart size="22" />
-            <p>{comment.likesCount == 1 ? comment.likesCount + ' like' : comment.likesCount + ' likes'}</p>
+            <p>{comment.likesCount} like{comment.likesCount !== 1 ? 's' : ''}</p>
           </div>
         </>
-      }
+      )}
     </main>
   )
 }
