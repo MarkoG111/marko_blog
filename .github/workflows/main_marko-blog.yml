@@ -12,7 +12,7 @@ jobs:
     defaults:
       run:
         shell: pwsh
-        working-directory: D:\a\marko_blog\marko_blog
+        working-directory: ${{ github.workspace }}
     permissions:
       contents: read
 
@@ -21,25 +21,25 @@ jobs:
 
       - name: DEBUG - List folders
         run: |
-          echo "=== CURRENT WORKING DIRECTORY ==="
-          cd
-          echo "=== LIST ROOT ==="
+          echo "=== CURRENT DIRECTORY ==="
+          pwd
+          echo "=== ROOT FILES ==="
           dir
-          echo "=== LIST API ==="
+          echo "=== API FOLDER ==="
           dir API || echo "API NOT FOUND"
 
-      - name: Set up .NET Core
+      - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.x'
 
-      - name: Build with dotnet
-        run: dotnet build ./API/api.csproj --configuration Release
+      - name: Build
+        run: dotnet build API/api.csproj -c Release
 
-      - name: dotnet publish
-        run: dotnet publish ./API/api.csproj -c Release -o "${{env.DOTNET_ROOT}}/myapp"
+      - name: Publish
+        run: dotnet publish API/api.csproj -c Release -o "${{env.DOTNET_ROOT}}/myapp"
 
-      - name: Upload artifact for deployment job
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: .net-app
@@ -53,7 +53,7 @@ jobs:
       contents: read
 
     steps:
-      - name: Download artifact from build job
+      - name: Download artifact
         uses: actions/download-artifact@v4
         with:
           name: .net-app
@@ -65,7 +65,7 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID }}
 
-      - name: Deploy to Azure Web App
+      - name: Deploy
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'marko-blog'
@@ -73,4 +73,3 @@ jobs:
           package: .
           resource-group-name: 'marko-blog-rg'
           cleanup: true
-
