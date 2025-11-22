@@ -134,6 +134,10 @@ namespace API
             using (var scope = app.ApplicationServices.CreateScope())
             {
                 var context = scope.ServiceProvider.GetRequiredService<BlogContext>();
+
+                context.Database.EnsureDeleted();
+                context.Database.EnsureCreated();
+
                 EFDataAccess.Seed.DataSeeder.SeedInitialData(context);
             }
 
