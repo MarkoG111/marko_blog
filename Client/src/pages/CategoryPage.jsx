@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
 import { Pagination } from "flowbite-react"
 import { useError } from "../contexts/ErrorContext"
-import { handleApiError } from "../utils/handleApiUtils"
+import { getCategoryById } from "../api/categoriesApi"
 
 export default function CategoryPage() {
   const { id } = useParams()
@@ -16,23 +16,10 @@ export default function CategoryPage() {
   useEffect(() => {
     const fetchCategory = async () => {
       try {
-        const queryParams = new URLSearchParams({
-          page: currentPage,
-          perPage: 3
-        })
+        const data = await getCategoryById(id, currentPage)
 
-        const response = await fetch(`/api/categories/${id}?${queryParams}`, {
-          method: "GET"
-        })
-
-        if (response.ok) {
-          const data = await response.json()
-          
-          setCategory(data)
-          setPageCount(data.pageCount)
-        } else {
-          await handleApiError(response, showError)
-        }
+        setCategory(data)
+        setPageCount(data.pageCount)
       } catch (error) {
         showError(error.message)
       }

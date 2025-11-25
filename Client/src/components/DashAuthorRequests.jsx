@@ -5,9 +5,12 @@ import { Link } from "react-router-dom"
 import { HiOutlineClock, HiOutlineCheck, HiOutlineX } from 'react-icons/hi'
 import { Table, Pagination, Button } from "flowbite-react"
 import { useError } from "../contexts/ErrorContext"
-import { handleApiError } from "../utils/handleApiUtils"
 import { getAvatarSrc } from '../utils/getAvatarSrc'
-
+import {
+  getAuthorRequests,
+  acceptAuthorRequest,
+  rejectAuthorRequest
+} from "../api/authorRequestsApi";
 export default function DashAuthorRequests() {
   const { currentUser } = useSelector((state) => state.user)
 
@@ -21,26 +24,9 @@ export default function DashAuthorRequests() {
   useEffect(() => {
     const fetchAuthorRequests = async () => {
       try {
-        const token = localStorage.getItem("token")
-        if (!token) {
-          throw new Error("Token not found")
-        }
-
-        const response = await fetch(`/api/authorrequests?page=${currentPage}`, {
-          method: "GET",
-          headers: {
-            "Authorization": `Bearer ${token}`
-          }
-        })
-
-        if (response.ok) {
-          const data = await response.json()
-
-          setAuthorRequests(data.items)
-          setPageCount(data.pageCount)
-        } else {
-          await handleApiError(response, showError)
-        }
+        const data = await getAuthorRequests(currentPage);
+        setAuthorRequests(data.items)
+        setPageCount(data.pageCount)
       } catch (error) {
         showError(error.message)
       }
@@ -51,64 +37,32 @@ export default function DashAuthorRequests() {
 
   const onPageChange = (page) => setCurrentPage(page)
 
-  const updateAuthorRequestStatus = (id, newStatus) => {
-    setAuthorRequests((prevRequests) => prevRequests.map((request) =>
-      request.id == id ? { ...request, status: newStatus } : request
-    ))
-  }
 
-  const handleAcceptAuthorRequest = async (idRequest) => {
+  const updateStatus = (id, newStatus) => {
+    setAuthorRequests((prev) =>
+      prev.map((req) =>
+        req.id === id ? { ...req, status: newStatus } : req
+      )
+    );
+  };
+
+  const handleAccept = async (id) => {
     try {
-      const token = localStorage.getItem("token")
-      if (!token) {
-        throw new Error("Token not found")
-      }
-
-      const response = await fetch(`/api/authorrequests/accept?id=${idRequest}`, {
-        method: "PUT",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ status: 2, idRole: 2 })
-      })
-
-      if (response.ok) {
-        updateAuthorRequestStatus(idRequest, 2)
-      } else {
-        await handleApiError(response, showError)
-      }
-    } catch (error) {
-      showError(error.message)
+      await acceptAuthorRequest(id);
+      updateStatus(id, 2);
+    } catch (err) {
+      showError(err.message);
     }
-  }
+  };
 
-  const handleRejectAuthorRequest = async (idRequest) => {
+  const handleReject = async (id) => {
     try {
-      const token = localStorage.getItem("token")
-      if (!token) {
-        throw new Error("Token not found")
-      }
-
-      const response = await fetch(`/api/authorrequests/reject?id=${idRequest}`, {
-        method: "PUT",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ status: 3, idRole: 3 })
-      })
-
-      if (response.ok) {
-        updateAuthorRequestStatus(idRequest, 3)
-      } else {
-        await handleApiError(response, showError)
-      }
-    } catch (error) {
-      showError(error.message)
+      await rejectAuthorRequest(id);
+      updateStatus(id, 3);
+    } catch (err) {
+      showError(err.message);
     }
-  }
-
+  };
   const statusIcon = {
     1: { icon: <HiOutlineClock />, className: 'text-yellow-500', text: "Pending" },
     2: { icon: <HiOutlineCheck />, className: 'text-green-500', text: "Accepted" },
@@ -156,9 +110,13 @@ export default function DashAuthorRequests() {
                 <Table.Cell className="w-64">
                   <AuthorRequestStatus status={authorRequest.status || 1} />
                 </Table.Cell>
-                <Table.Cell className="flex">
-                  <Button className="mr-3" color="failure" onClick={() => handleRejectAuthorRequest(authorRequest.id)}>Reject</Button>
-                  <Button className="ml-6" color="success" onClick={() => handleAcceptAuthorRequest(authorRequest.id)}>Accept</Button>
+                <Table.Cell className="flex gap-4">
+                  <Button color="failure" onClick={() => handleReject(authorRequest.id)}>
+                    Reject
+                  </Button>
+                  <Button color="success" onClick={() => handleAccept(authorRequest.id)}>
+                    Accept
+                  </Button>
                 </Table.Cell>
               </Table.Row>
             </Table.Body>

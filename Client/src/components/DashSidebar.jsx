@@ -7,8 +7,8 @@ import { HiUser, HiArrowSmRight, HiDocumentText, HiOutlineUserGroup, HiOutlineUs
 import { RiPieChart2Fill } from "react-icons/ri"
 import { FaFolder, FaRegComments } from "react-icons/fa"
 import { useError } from '../contexts/ErrorContext'
-import { handleApiError } from '../utils/handleApiUtils'
 import { BsListColumns } from "react-icons/bs"
+import { getUserById } from "../api/usersApi"
 
 export default function DashSidebar() {
   const location = useLocation()
@@ -34,26 +34,8 @@ export default function DashSidebar() {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const token = localStorage.getItem("token")
-        if (!token) {
-          showError("Token not found")
-          return
-        }
-
-        const repsonse = await fetch(`/api/users/${currentUser.id}`, {
-          method: "GET",
-          headers: {
-            "Authorization": `Bearer ${token}`
-          }
-        })
-
-        const data = await repsonse.json()
-
-        if (repsonse.ok) {
-          setUser(data)
-        } else {
-          await handleApiError(repsonse, showError)
-        }
+        const data = await getUserById(currentUser.id)
+        setUser(data)
       } catch (error) {
         showError(error.message)
       }

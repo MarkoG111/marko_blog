@@ -2,6 +2,7 @@ import { useState, useEffect } from "react"
 import { Button, Modal, Pagination, Table, TextInput, Spinner } from "flowbite-react"
 import DatePicker from "react-datepicker"
 import "react-datepicker/dist/react-datepicker.css"
+import { getUseCaseLogs } from "../api/useCaseLogsApi";
 
 export default function DashLogs() {
   const [logs, setLogs] = useState([])
@@ -39,11 +40,6 @@ export default function DashLogs() {
     setError(null)
 
     try {
-      const token = localStorage.getItem("token")
-      if (!token) {
-        throw new Error("Token not found")
-      }
-
       const params = new URLSearchParams({
         ...(filters.actor && { Actor: filters.actor }),
         ...(filters.useCaseName && { UseCaseName: filters.useCaseName }),
@@ -54,18 +50,8 @@ export default function DashLogs() {
         SortOrder: filters.sortOrder
       })
 
-      const response = await fetch(`/api/usecaselogs?${params.toString()}`, {
-        method: "GET",
-        headers: {
-          "Authorization": `Bearer ${token}`
-        }
-      })
+      const data = await getUseCaseLogs(params.toString());
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
-      }
-
-      const data = await response.json()
       setLogs(data.items)
       setTotal(data.totalCount)
     } catch (err) {

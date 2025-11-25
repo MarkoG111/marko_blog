@@ -3,7 +3,7 @@ import { useSelector } from "react-redux"
 import { Button, Label, Textarea } from "flowbite-react"
 import { useError } from "../contexts/ErrorContext"
 import { useSuccess } from "../contexts/SuccessContext"
-import { handleApiError } from "../utils/handleApiUtils"
+import { createAuthorRequest } from "../api/authorRequestsApi"
 
 export default function RequestAuthorForm() {
   const { loading } = useSelector((state) => state.user)
@@ -19,37 +19,18 @@ export default function RequestAuthorForm() {
     e.preventDefault()
 
     try {
-      const token = localStorage.getItem("token")
-      if (!token) {
-        showError("Token not found")
-        return
-      }
-
-      const body = JSON.stringify({
+      const payload = {
         status: 1,
-        reason: reason,
+        reason,
         idUser: currentUser.id,
         idRole: currentUser.idRole
-      })
-
-      const response = await fetch(`/api/authorrequests`, {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "application/json"
-        },
-        body: body
-      })
-
-      if (response.ok) {
-        const data = await response.json()
-
-        setAuthorRequests([...authorRequests, data])
-        setReason('')
-        showSuccess('Successfully submited request')
-      } else {
-        await handleApiError(response, showError)
       }
+
+      const data = await createAuthorRequest(payload)
+
+      setAuthorRequests((prev) => [...prev, data])
+      setReason('')
+      showSuccess('Successfully submitted request')
     } catch (error) {
       showError(error.message)
     }

@@ -5,7 +5,7 @@ import { HiOutlineExclamationCircle } from 'react-icons/hi'
 import { Table, Pagination, Modal, Button } from "flowbite-react"
 import { useError } from "../contexts/ErrorContext"
 import { useSuccess } from "../contexts/SuccessContext"
-import { handleApiError } from "../utils/handleApiUtils"
+import { getPostsPagedAdmin, deletePost } from "../api/postsApi"
 
 export default function DashPosts() {
   const { currentUser } = useSelector((state) => state.user)
@@ -22,26 +22,10 @@ export default function DashPosts() {
   useEffect(() => {
     const fetchAdminPosts = async () => {
       try {
-        const token = localStorage.getItem("token")
-        if (!token) {
-          throw new Error("Token not found")
-        }
+        const data = await getPostsPagedAdmin(currentPage)
 
-        const response = await fetch(`/api/posts?page=${currentPage}`, {
-          method: "GET",
-          headers: {
-            "Authorization": `Bearer ${localStorage.getItem("token")}`
-          }
-        })
-        
-        if (response.ok) {
-          const data = await response.json()
-          
-          setUserPosts(data.items)
-          setPageCount(data.pageCount)
-        } else {
-          await handleApiError(response, showError)
-        }
+        setUserPosts(data.items)
+        setPageCount(data.pageCount)
       } catch (error) {
         showError(error.message)
       }
@@ -56,30 +40,11 @@ export default function DashPosts() {
     setShowModal(false)
 
     try {
-      const token = localStorage.getItem("token")
-      if (!token) {
-        throw new Error("Token not found")
-      }
-
-      const response = await fetch(`/api/posts/${postIdToDelete}`, {
-        method: "DELETE",
-        headers: {
-          "Authorization": `Bearer ${token}`
-        },
-      })
-
-      if (response.ok) {
-        setUserPosts((prev) => prev.filter((post) => post.id !== postIdToDelete))
-        showSuccess("You have successfully deleted a post")
-        setPostDeleted(!postDeleted)
-      } else {
-        await handleApiError(response, showError)
-      }
+      await deletePost(postIdToDelete)
     } catch (error) {
       showError(error.message)
     }
   }
-
 
   return <div className="table-container-scrollbar table-auto overflow-x-scroll md:mx-auto p-3 scrollbar scrollbar-track-slate-100 scrollbar-thumb-slate-300 dark:scrollbar-track-slate-700 dark:scrollbar-thumb-slate-500">
     {currentUser.roleName === 'Admin' && userPosts.length > 0 ? (

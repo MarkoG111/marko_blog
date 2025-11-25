@@ -3,7 +3,7 @@ import { Link } from "react-router-dom"
 import PostCard from "../components/PostCard"
 import CallToAction from "../components/CallToAction"
 import { useError } from "../contexts/ErrorContext"
-import { handleApiError } from "../utils/handleApiUtils"
+import { getHomePosts } from "../api/postsApi"
 
 export default function Home() {
   const [posts, setPosts] = useState([])
@@ -11,24 +11,16 @@ export default function Home() {
   const { showError } = useError()
 
   useEffect(() => {
-    const fetchHomePagePosts = async () => {
+    const loadPosts = async () => {
       try {
-        const response = await fetch(`/api/posts?perPage=4`, {
-          method: "GET"
-        })
-
-        if (response.ok) {
-          const data = await response.json()
-          setPosts(data.items)
-        } else {
-          await handleApiError(response, showError)
-        }
+        const data = await getHomePosts()
+        setPosts(data.items)
       } catch (error) {
         showError(error.message)
       }
     }
 
-    fetchHomePagePosts()
+    loadPosts()
   }, [])
 
   return (

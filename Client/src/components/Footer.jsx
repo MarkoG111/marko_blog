@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useError } from '../contexts/ErrorContext'
-import { handleApiError } from '../utils/handleApiUtils'
+import { getAllPublicCategories } from "../api/categoriesApi"
 
 export default function Footer() {
   const [categories, setCategories] = useState([])
@@ -11,21 +11,9 @@ export default function Footer() {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const queryParams = new URLSearchParams({
-          getAll: true
-        })
+        const data = await getAllPublicCategories()
 
-        const response = await fetch(`/api/categories?${queryParams}`, {
-          method: "GET"
-        })
-  
-        if (response.ok) {
-          const data = await response.json()
-          
-          setCategories(data.items)
-        } else {
-          await handleApiError(response, showError)
-        }
+        setCategories(data.items)
       } catch (error) {
         showError(error.message)
       }

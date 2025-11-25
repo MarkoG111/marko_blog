@@ -67,7 +67,7 @@ export default function DashComments() {
 
             {comments.map((comment) => (
               <Table.Body key={comment.id} className="divide-y">
-                <Table.Row className="bg-white">
+                <Table.Row className="bg-white dark:bg-gray-800">
                   <Table.Cell>{new Date(comment.createdAt).toLocaleDateString()}</Table.Cell>
 
                   <Table.Cell>

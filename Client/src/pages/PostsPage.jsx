@@ -4,7 +4,8 @@ import PostCard from "../components/PostCard"
 import MultiSelectDropdown from "../components/MultiSelectDropdown"
 import { useLocation } from "react-router-dom"
 import { useError } from "../contexts/ErrorContext"
-import { handleApiError } from "../utils/handleApiUtils"
+import { getPostsPaged } from "../api/postsApi"
+import { getAllPublicCategories } from "../api/categoriesApi"
 
 export default function PostsPage() {
   const [posts, setPosts] = useState([])
@@ -16,147 +17,99 @@ export default function PostsPage() {
   const [pageCount, setPageCount] = useState(1)
 
   const { showError } = useError()
-
   const location = useLocation()
 
   useEffect(() => {
-    const queryParams = new URLSearchParams(location.search)
-    const search = queryParams.get('search') || ''
-
+    const params = new URLSearchParams(location.search)
+    const search = params.get("search") || ''
     setSearchTerm(search)
     setCurrentPage(1)
   }, [location.search])
 
   useEffect(() => {
-    const fetchPosts = async () => {
+    const loadPosts = async () => {
       try {
-        const queryParams = new URLSearchParams({
+        const params = new URLSearchParams({
           page: currentPage,
           perPage: 5,
           title: searchTerm,
-          sortOrder: sortOrder,
+          sortOrder
         })
 
-        if (selectedCategories.length > 0) {
-          selectedCategories.forEach((idCategory, index) => {
-            queryParams.append(`categoryIds[${index}]`, idCategory)
-          })
-        }
-
-        const response = await fetch(`/api/posts?${queryParams}`, {
-          method: "GET"
+        selectedCategories.forEach((id, i) => {
+          params.append(`categoryIds[${i}]`, id)
         })
 
-        if (response.ok) {
-          const data = await response.json()
-
-          setPosts(data.items)
-          setPageCount(data.pageCount)
-        } else {
-          await handleApiError(response, showError)
-        }
+        const data = await getPostsPaged(params.toString())
+        setPosts(data.items)
+        setPageCount(data.pageCount)
       } catch (error) {
         showError(error.message)
       }
     }
 
-    fetchPosts()
+    loadPosts()
   }, [currentPage, searchTerm, sortOrder, selectedCategories])
 
   useEffect(() => {
-    const fetchPostCategories = async () => {
+    const loadCategories = async () => {
       try {
-        const response = await fetch(`/api/categories?getAll=true`, {
-          method: "GET"
-        })
-
-        if (response.ok) {
-          const data = await response.json()
-          
-          setCategories(data.items)
-        } else {
-          await handleApiError(response, showError)
-        }
+        const data = await getAllPublicCategories()
+        setCategories(data.items)
       } catch (error) {
         showError(error.message)
       }
     }
 
-    fetchPostCategories()
+    loadCategories()
   }, [])
-
-  const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value)
-    setCurrentPage(1)
-  }
-
-  const handleSortChange = (e) => {
-    setSortOrder(e.target.value)
-    setCurrentPage(1)
-  }
-
-  const handleCategoryChange = (selectedCategories) => {
-    setSelectedCategories(selectedCategories)
-    setCurrentPage(1)
-  }
-
-  const onPageChange = (page) => {
-    if (page > 0 && page <= pageCount) {
-      setCurrentPage(page)
-    }
-  }
 
   return (
     <div className="flex flex-col md:flex-row">
-      <div className="p-7 border-b md:border-r md:min-h-screen border-gray-500 sm:w-full md:w-2/6">
+      {/* Sidebar */}
+      <div className="p-7 border-b md:border-r md:min-h-screen border-gray-500 md:w-2/6">
         <form className="flex flex-col gap-8">
           <div className="flex items-center gap-2">
-            <label className="whitespace-nowrap font-semibold">Search Term:</label>
-            <TextInput placeholder="Search..." id="searchTerm" type="text" onChange={handleSearchChange} className="w-1/2" value={searchTerm} />
+            <label className="font-semibold">Search:</label>
+            <TextInput
+              value={searchTerm}
+              onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1) }}
+            />
           </div>
 
           <div className="flex items-center gap-2">
             <label className="font-semibold">Sort:</label>
-            <Select id="sort" onChange={handleSortChange} className="w-1/3" value={sortOrder}>
-              <option value='desc'>Latest</option>
-              <option value='asc'>Oldest</option>
+            <Select value={sortOrder} onChange={(e) => setSortOrder(e.target.value)}>
+              <option value="desc">Latest</option>
+              <option value="asc">Oldest</option>
             </Select>
           </div>
 
           <div>
-            <div className="flex items-center gap-2">
-              <label className="font-semibold">Categories:</label>
-              <div className="relative w-full ">
-                <MultiSelectDropdown formFieldName={"categories"} categories={categories} onChange={handleCategoryChange} prompt="Select one or more categories" />
-              </div>
-            </div>
+            <label className="font-semibold">Categories:</label>
+            <MultiSelectDropdown formFieldName="categoryIds" categories={categories} onChange={setSelectedCategories} />
           </div>
         </form>
       </div>
 
+      {/* Posts */}
       <div className="w-full">
-        <h1 className="text-3xl font-semibold sm:border-b border-gray-500 p-3 mt-5">Posts</h1>
+        <h1 className="text-3xl font-semibold border-b border-gray-500 p-3">Posts</h1>
+
         <div className="p-7 flex flex-wrap gap-4">
-          {posts.length == 0 && (
-            <p className="text-xl text-gray-500">No posts found.</p>
-          )}
-          {
-            posts.length > 0 && posts.map((post) =>
-              <PostCard key={post.id} post={post} />
-            )
-          }
+          {posts.length === 0 && <p className="text-xl text-gray-500">No posts found.</p>}
+          {posts.map((post) => <PostCard key={post.id} post={post} />)}
         </div>
 
-        <div className="px-8 pb-12">
-          {posts.length > 0 &&
+        {posts.length > 0 && (
+          <div className="px-8 pb-12">
             <Pagination
               currentPage={currentPage}
-              onPageChange={onPageChange}
+              onPageChange={setCurrentPage}
               totalPages={pageCount}
-              className="text-l"
             />
-          }
-        </div>
+          </div>
+        )}
       </div>
     </div>
   )

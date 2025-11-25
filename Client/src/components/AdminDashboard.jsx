@@ -7,6 +7,10 @@ import { Link } from "react-router-dom"
 import { useError } from "../contexts/ErrorContext"
 import { getAvatarSrc } from "../utils/getAvatarSrc"
 
+import { getCommentsPaged } from "../api/commentsApi"
+import { getUsersPaged } from "../api/usersApi"
+import { getPostsPagedAdmin } from "../api/postsApi"
+
 export default function AdminDashboard() {
   const [users, setUsers] = useState([])
   const [comments, setComments] = useState([])
@@ -30,33 +34,23 @@ export default function AdminDashboard() {
           throw new Error("Token not found")
         }
 
-        const [usersResponse, commentsResponse, postsResponse] = await Promise.all([
-          fetch(`/api/users`, { headers: { Authorization: `Bearer ${token}` } }),
-          fetch(`/api/comments`, { headers: { Authorization: `Bearer ${token}` } }),
-          fetch(`/api/posts`, { headers: { Authorization: `Bearer ${token}` } }),
+        const [usersData, commentsData, postsData] = await Promise.all([
+          getUsersPaged(1, 5),
+          getCommentsPaged(1,5),
+          getPostsPagedAdmin(1,5)
         ])
 
-        const usersData = await usersResponse.json()
-        const commentsData = await commentsResponse.json()
-        const postsData = await postsResponse.json()
+        setUsers(usersData.items.slice(0, 5))
+        setTotalUsers(usersData.totalCount)
+        setLastMonthUsers(usersData.lastMonthCount)
 
-        if (usersResponse.ok) {
-          setUsers(usersData.items.slice(0, 5))
-          setTotalUsers(usersData.totalCount)
-          setLastMonthUsers(usersData.lastMonthCount)
-        }
+        setComments(commentsData.items.slice(0, 5))
+        setTotalComments(commentsData.totalCount)
+        setLastMonthComments(commentsData.lastMonthCount)
 
-        if (commentsResponse.ok) {
-          setComments(commentsData.items.slice(0, 5))
-          setTotalComments(commentsData.totalCount)
-          setLastMonthComments(commentsData.lastMonthCount)
-        }
-
-        if (postsResponse.ok) {
-          setPosts(postsData.items.slice(0, 5))
-          setTotalPosts(postsData.totalCount)
-          setLastMonthPosts(postsData.lastMonthCount)
-        }
+        setPosts(postsData.items.slice(0, 5))
+        setTotalPosts(postsData.totalCount)
+        setLastMonthPosts(postsData.lastMonthCount)
       } catch (error) {
         showError(error.message)
       }

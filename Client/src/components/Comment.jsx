@@ -5,12 +5,11 @@ import { useSelector } from "react-redux"
 import { FaThumbsUp, FaThumbsDown } from 'react-icons/fa'
 import { Button, Textarea } from 'flowbite-react'
 import { useError } from '../contexts/ErrorContext'
-import { handleApiError } from '../utils/handleApiUtils'
 import ChildComment from './ChildComment'
 import { getAvatarSrc } from "../utils/getAvatarSrc"
 
 import { updateComment } from "../api/commentsApi"
-import { getUser } from "../api/usersApi"
+import { getUserById } from "../api/usersApi"
 
 export default function Comment({ comment, onLikeComment, onDislikeComment, onAddChildComment, childrenComments, onEditComment, onDeleteComment, setActiveReplyIdComment, activeReplyIdComment, comments }) {
   const { currentUser } = useSelector((state) => state.user)
@@ -31,7 +30,7 @@ export default function Comment({ comment, onLikeComment, onDislikeComment, onAd
   useEffect(() => {
     const load = async () => {
       try {
-        const data = await getUser(comment.idUser)
+        const data = await getUserById(comment.idUser)
         setUser(data)
       } catch (err) {
         showError(err.message)

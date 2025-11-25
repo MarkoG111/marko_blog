@@ -1,10 +1,10 @@
 import { useState } from "react"
 import { useError } from "../contexts/ErrorContext"
 import { useSuccess } from "../contexts/SuccessContext"
-import { handleApiError } from "../utils/handleApiUtils"
 import { Button, Modal, Table } from "flowbite-react"
 import PropTypes from "prop-types"
 import { HiOutlineCheck, HiOutlineX, HiOutlineExclamationCircle } from "react-icons/hi"
+import { updateCategory, deleteCategory } from "../api/categoriesApi"
 
 export default function EditableCategoryRow({ category, onSave, onDelete }) {
   const [isEditing, setIsEditing] = useState(false)
@@ -16,30 +16,11 @@ export default function EditableCategoryRow({ category, onSave, onDelete }) {
 
   const handleSave = async () => {
     try {
-      const token = localStorage.getItem("token")
-      if (!token) {
-        throw new Error("Token not found")
-      }
+      await updateCategory(category.id, newName)
 
-      const response = await fetch(`/api/categories/${category.id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          name: newName
-        })
-      })
-
-      if (response.ok) {
-        onSave(category.id, newName)
-        setIsEditing(false)
-        showSuccess('Category name updated successfully')
-      } else {
-        await handleApiError(response, showError)
-      }
-
+      onSave(category.id, newName)
+      setIsEditing(false)
+      showSuccess('Category name updated successfully')
     } catch (error) {
       showError(error.message)
     }
@@ -49,26 +30,12 @@ export default function EditableCategoryRow({ category, onSave, onDelete }) {
     setShowDeleteModal(false)
 
     try {
-      const token = localStorage.getItem("token")
-      if (!token) {
-        throw new Error("Token not found")
-      }
-
-      const response = await fetch(`/api/categories/${category.id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-
-      if (response.ok) {
-        onDelete(category.id)
-        showSuccess("Category deleted successfully")
-      } else {
-        await handleApiError(response, showError)
-      }
-    } catch (error) {
-      showError(error.message)
+      await deleteCategory(category.id)
+      
+      onDelete(category.id)
+      showSuccess("Category deleted successfully")
+    } catch (err) {
+      showError(err.message)
     }
   }
 

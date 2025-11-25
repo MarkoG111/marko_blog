@@ -5,15 +5,16 @@ import CommentSection from "../components/CommentSection"
 import PostLikeButtons from "../components/PostLikeButtons"
 import { useSelector } from "react-redux"
 import { useError } from "../contexts/ErrorContext"
-import { handleApiError } from "../utils/handleApiUtils"
 import { useNavigate } from 'react-router-dom'
 
 import {
   removeDislikeOrLikeIfPresentInPost,
   checkIfAlreadyVotedOnPost,
   updatePostLikes
-
 } from '../utils/postLikeUtils'
+
+import { addPostLike, removePostLike } from "../api/likesApi"
+import { getPostById } from "../api/postsApi"
 
 export default function PostPage() {
   const { id } = useParams()
@@ -29,83 +30,48 @@ export default function PostPage() {
   const { currentUser } = useSelector(state => state.user)
 
   useEffect(() => {
-    const fetchPost = async () => {
+    const loadPost = async () => {
       try {
         setLoading(true)
-
-        const response = await fetch(`/api/posts/${id}`, {
-          method: "GET"
-        })
-
-        if (response.ok) {
-          const data = await response.json()
-
-          setPost(data)
-          setLoading(false)
-        } else {
-          await handleApiError(response, showError)
-        }
+        const data = await getPostById(id)
+        setPost(data)
       } catch (error) {
-        showError("An unexpected error occurred while loading the post.")
+        showError(error.message)
+      } finally {
+        setLoading(false)
       }
     }
 
-    fetchPost()
-  }, [id, showError])
+    loadPost()
+  }, [id])
 
   const handlePostVote = async (idPost, status) => {
     try {
-      const token = localStorage.getItem("token")
-      if (!token) {
+      if (!currentUser) {
         showError("You must be logged in to vote.")
         navigate("/sign-in")
         return
       }
 
-      const isAlreadyVoted = checkIfAlreadyVotedOnPost(post, idPost, currentUser.id, status)
+      const alreadyVoted = checkIfAlreadyVotedOnPost(post, idPost, currentUser.id, status)
 
-      if (isAlreadyVoted) {
-        const response = await fetch(`/api/likes/posts/${idPost}`, {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-
-        if (response.ok) {
-          const updatedPost = removeDislikeOrLikeIfPresentInPost(post, idPost, currentUser.id, status)
-          setPost(updatedPost)
-        } else {
-          await handleApiError(response, showError)
-        }
-
+      if (alreadyVoted) {
+        await removePostLike(idPost)
+        setPost(removeDislikeOrLikeIfPresentInPost(post, idPost, currentUser.id, status))
         return
       }
 
-      const body = JSON.stringify({
+      const payload = {
         IdUser: currentUser.id,
         IdPost: idPost,
-        Status: status,
-      })
-
-      const response = await fetch(`/api/likes/posts/${idPost}`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body,
-      })
-
-      if (response.ok) {
-        const data = await response.json()
-        const updatedPost = updatePostLikes(post, idPost, data, currentUser.id)
-        setPost(updatedPost)
-      } else {
-        await handleApiError(response, showError)
+        Status: status
       }
+
+      const data = await addPostLike(idPost, payload)
+      setPost(updatePostLikes(post, idPost, data, currentUser.id))
+
     } catch (error) {
-      showError("An error occurred while processing your request.")
+      showError("An error occurred while voting.")
     }
   }
 

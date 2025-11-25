@@ -2,8 +2,8 @@ import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
 import { Pagination } from "flowbite-react"
 import { useError } from "../contexts/ErrorContext"
-import { handleApiError } from "../utils/handleApiUtils"
 import { getAvatarSrc } from "../utils/getAvatarSrc"
+import { getAuthorsPaged } from "../api/usersApi"
 
 export default function Authors() {
   const [authors, setAuthors] = useState([])
@@ -15,26 +15,10 @@ export default function Authors() {
   useEffect(() => {
     const fetchAuthors = async () => {
       try {
-        const queryParams = new URLSearchParams({
-          onlyAuthors: true,
-          perPage: 3,
-          page: currentPage
-        })
+        const data = await getAuthorsPaged(currentPage)
 
-        const response = await fetch(`/api/users?${queryParams}`, {
-          method: "GET"
-        })
-
-        if (response.ok) {
-          const data = await response.json()
-
-          const authors = data.items.filter((author) => author.roleName == 'Author')
-
-          setAuthors(authors)
-          setPageCount(data.pageCount)
-        } else {
-          await handleApiError(response, showError)
-        }
+        setAuthors(data.items)
+        setPageCount(data.pageCount)
       } catch (error) {
         showError(error.message || "An unknown error occurred.")
       }
