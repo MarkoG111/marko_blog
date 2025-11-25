@@ -3,12 +3,13 @@ import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
 import { useSelector } from "react-redux"
 import { useError } from "../contexts/ErrorContext"
-import { handleApiError } from "../utils/handleApiUtils"
 import { Pagination } from 'flowbite-react'
 import { getAvatarSrc } from "../utils/getAvatarSrc"
 
+import { getFollowers, getFollowing } from "../api/followersApi"
+
 export default function FollowList({ isFollowersTab }) {
-  const [listUsers, setList] = useState([])
+  const [listUsers, setListUsers] = useState([])
   const [currentPage, setCurrentPage] = useState(1)
   const [pageCount, setPageCount] = useState(1)
 
@@ -19,43 +20,21 @@ export default function FollowList({ isFollowersTab }) {
   const onPageChange = (page) => setCurrentPage(page)
 
   useEffect(() => {
-    const fetchList = async () => {
+    const fetchData = async () => {
       try {
-        const token = localStorage.getItem("token")
-        if (!token) {
-          showError("Token not found")
-          return
-        }
+        const data = isFollowersTab
+          ? await getFollowers(currentUser.id, currentPage)
+          : await getFollowing(currentUser.id, currentPage)
 
-        const queryParams = new URLSearchParams({
-          idUser: currentUser.id,
-          page: currentPage,
-          perPage: 5,
-        })
-
-        const url = isFollowersTab ? `/api/followers/${currentUser.id}/followers?${queryParams}` : `/api/followers/${currentUser.id}/following?${queryParams}`
-
-        const response = await fetch(url, {
-          method: "GET",
-          headers: {
-            "Authorization": `Bearer ${token}`
-          },
-        })
-
-        if (response.ok) {
-          const data = await response.json()
-          setList(data.items)
-          setPageCount(data.pageCount)
-        } else {
-          await handleApiError(response, showError)
-        }
-      } catch (error) {
-        showError(error.message)
+        setListUsers(data.items)
+        setPageCount(data.pageCount)
+      } catch (err) {
+        showError(err.message)
       }
     }
 
-    fetchList()
-  }, [isFollowersTab, currentPage, showError, currentUser.id])
+    fetchData()
+  }, [isFollowersTab, currentPage, currentUser.id])
 
   return (
     <div className='mx-auto'>

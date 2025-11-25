@@ -2,9 +2,12 @@ import { useEffect, useState } from "react"
 import { Button, Checkbox, FileInput, TextInput } from "flowbite-react"
 import { useError } from "../contexts/ErrorContext"
 import { useSuccess } from "../contexts/SuccessContext"
-import { handleApiError } from "../utils/handleApiUtils"
 import ReactQuill from 'react-quill'
 import 'react-quill/dist/quill.snow.css'
+
+import { getAllCategoriesAuth } from "../api/categoriesApi"
+import { uploadImage } from "../api/imagesApi"
+import { createPost } from "../api/postsApi"
 
 export default function CreatePost() {
   const [selectedCategories, setSelectedCategories] = useState([])
@@ -21,79 +24,34 @@ export default function CreatePost() {
     setContent(value)
   }
 
-  const handleCategoryChange = (IdCategory) => {
-    setSelectedCategories(prevCategories => {
-      if (prevCategories.includes(IdCategory)) {
-        return prevCategories.filter(id => id !== IdCategory)
-      } else {
-        return [...prevCategories, IdCategory]
-      }
-    })
+  const handleCategoryChange = (id) => {
+    setSelectedCategories(prev =>
+      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+    )
   }
 
   useEffect(() => {
-    const fetchCategoriesForCreatePost = async () => {
+    const loadCategories = async () => {
       try {
-        const token = localStorage.getItem("token")
-        if (!token) {
-          throw new Error("Token not found")
-        }
-
-        const queryParams = new URLSearchParams({
-          getAll: true
-        })
-
-        const response = await fetch(`/api/categories?${queryParams}`, {
-          method: "GET",
-          headers: {
-            "Authorization": `Bearer ${token}`
-          }
-        })
-
-        if (response.ok) {
-          const data = await response.json()
-          
-          setCategories(data.items)
-        } else {
-          await handleApiError(response, showError)
-        }
+        const data = await getAllCategoriesAuth()
+        setCategories(data.items)
       } catch (error) {
         showError(error.message)
       }
     }
 
-    fetchCategoriesForCreatePost()
+    loadCategories()
   }, [showError])
 
   const handleUploadImage = async () => {
     if (!imageFile) {
-      showError("You must choose image.")
+      showError("You must choose an image.")
       return
     }
 
-    const formData = new FormData()
-    formData.append("Image", imageFile)
-
     try {
-      const token = localStorage.getItem("token")
-      if (!token) {
-        throw new Error("Token not found")
-      }
-
-      const response = await fetch(`/api/images`, {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${token}`
-        },
-        body: formData
-      })
-
-      if (response.ok) {
-        const imageUrl = await response.json()
-        setImagePreview(imageUrl)
-      } else {
-        await handleApiError(response, showError)
-      }
+      const imageData = await uploadImage(imageFile)
+      setImagePreview(imageData)
     } catch (error) {
       showError(error.message)
     }
@@ -102,41 +60,26 @@ export default function CreatePost() {
   const handleSubmit = async (e) => {
     e.preventDefault()
 
-    const postData = {
-      Title: e.target.elements.title.value,
+    const title = e.target.elements.title.value
+
+    const payload = {
+      Title: title,
       Content: content,
       IdImage: imagePreview?.id,
       CategoryIds: selectedCategories
     }
 
     try {
-      const token = localStorage.getItem("token")
-      if (!token) {
-        throw new Error("Token not found")
-      }
+      await createPost(payload)
 
-      const response = await fetch('/api/posts', {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(postData)
-      })
+      showSuccess("You have successfully added a post")
 
-      if (response.ok) {
-        showSuccess("You have successfully added a post")
-  
-        setContent('')
-        setSelectedCategories([])
-        setImageFile(null)
-        setImagePreview(null)
-        
-        e.target.elements.title.value = ''
-        e.target.elements.fileInput.value = ''
-      } else {
-        await handleApiError(response, showError)
-      }
+      setContent('')
+      setSelectedCategories([])
+      setImageFile(null)
+      setImagePreview(null)
+      e.target.elements.title.value = ''
+      e.target.elements.fileInput.value = ''
     } catch (error) {
       showError(error.message)
     }
