@@ -115,7 +115,7 @@ namespace API
             {
                 options.AddPolicy("AllowSpecificOrigin", builder =>
                 {
-                    builder.WithOrigins("http://localhost:5173", "https://marko-blog-bfdqeaf7dqacb3e7.westeurope-01.azurewebsites.net/")
+                    builder.WithOrigins("http://localhost:5173",  "https://marko-blog.vercel.app")
                            .AllowAnyMethod()
                            .AllowAnyHeader()
                            .AllowCredentials();
