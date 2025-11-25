@@ -11,19 +11,24 @@ namespace Implementation.Extensions
     {
         public static async Task<string> UploadProfileImage(this IFormFile image, string folder, string oldFileName = null)
         {
+            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "UserImages");
+
+            // Create folder if missing
+            if (!Directory.Exists(uploadsFolder))
+                Directory.CreateDirectory(uploadsFolder);
+
+            // Delete old file if exists
             if (!string.IsNullOrEmpty(oldFileName))
             {
-                var oldFilePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", folder, oldFileName);
+                var oldFilePath = Path.Combine(uploadsFolder, oldFileName);
                 if (File.Exists(oldFilePath))
-                {
                     File.Delete(oldFilePath);
-                }
             }
 
+            // New file generation
             var guid = Guid.NewGuid();
             var extension = Path.GetExtension(image.FileName);
             var newFileName = guid + extension;
-            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "UserImages");
 
             var path = Path.Combine(uploadsFolder, newFileName);
 

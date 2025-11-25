@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
-import { deleteUserFailure, deleteUserSuccess, updateProfilePictureSuccess, updateUserSuccess, signoutSuccess } from '../redux/user/userSlice'
+import { updateUserSuccess, signoutSuccess, updateProfilePictureSuccess } from '../redux/user/userSlice'
 import { Button, Modal, TextInput } from "flowbite-react"
 import { HiOutlineExclamationCircle } from 'react-icons/hi'
 import { useError } from "../contexts/ErrorContext"
-import { handleApiError } from "../utils/handleApiUtils"
-import { useSuccess } from "../contexts/SuccessContext"
 import { getAvatarSrc } from "../utils/getAvatarSrc"
+import { updateUser, deleteUser } from "../api/usersApi"
+import { useSuccess } from "../contexts/SuccessContext"
 
 export default function DashProfile() {
   const { currentUser, loading } = useSelector((state) => state.user)
@@ -41,77 +41,74 @@ export default function DashProfile() {
 
 
   const handleFormSubmit = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
-    const formData = new FormData()
-    formData.append("Id", currentUser.id)
-    formData.append("FirstName", e.target.elements.firstName.value)
-    formData.append("LastName", e.target.elements.lastName.value)
-    formData.append("Username", e.target.elements.username.value)
-    formData.append("Email", e.target.elements.email.value)
-    formData.append("Password", e.target.elements.password.value)
-    formData.append("RoleName", currentUser.roleName)
+    console.log("SUBMIT FIRED!");
+
+    const token = localStorage.getItem("token");
+    if (!token) {
+      showError("Token not found");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("Id", currentUser.id);
+    formData.append("FirstName", e.target.elements.firstName.value);
+    formData.append("LastName", e.target.elements.lastName.value);
+    formData.append("Username", e.target.elements.username.value);
+    formData.append("Email", e.target.elements.email.value);
+    formData.append("Password", e.target.elements.password.value);
+    formData.append("IdRole", currentUser.idRole);
 
     if (imageFile) {
-      const blobImage = await fetch(imageFileUrl).then((res) => res.blob())
-      formData.append("Image", blobImage, imageFile.name)
+      formData.append("Image", imageFile);
+    }
+
+    // Debug — proveri šta se šalje
+    for (let pair of formData.entries()) {
+      console.log("FORMDATA:", pair[0], pair[1]);
     }
 
     try {
-      const token = localStorage.getItem("token")
-      if (!token) {
-        showError("Token not found")
-        return
-      }
-
-      const response = await fetch(`/api/users/${currentUser.id}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/users/${currentUser.id}`, {
         method: "PUT",
         headers: {
           "Authorization": `Bearer ${token}`
+          // ❗ NE SMEŠ ovde dodati Content-Type !!!
+          // Browser će dodati multipart/form-data sam.
         },
         body: formData
-      })
+      });
 
-      if (response.ok) {
-        const responseData = await response.json()
-        const updatedProfilePicture = responseData.profilePicture
-        dispatch(updateUserSuccess(responseData))
-        dispatch(updateProfilePictureSuccess(updatedProfilePicture))
-        showSuccess("You have successfully changed profile")
-      } else {
-        await handleApiError(response, showError)
+      console.log("RAW RESPONSE:", response);
+
+      if (!response.ok) {
+        let txt = await response.text();
+        console.error("SERVER ERROR:", txt);
+        showError(txt || "Error");
+        return;
       }
-    } catch (error) {
-      showError(error.message)
+
+      const data = await response.json();
+
+      dispatch(updateUserSuccess(data));
+      dispatch(updateProfilePictureSuccess(data.profilePicture));
+
+      showSuccess("Profile updated!");
+    } catch (err) {
+      console.error("CLIENT ERROR:", err);
+      showError(err.message);
     }
-  }
+  };
+
 
   const handleDeleteUser = async () => {
-    const token = localStorage.getItem("token")
-    if (!token) {
-      showError("Token not found")
-      return
-    }
-
     setShowModal(false)
 
     try {
-      const response = await fetch(`/api/users/${currentUser.id}`, {
-        method: "DELETE",
-        headers: {
-          "Authorization": `Bearer ${token}`
-        },
-      })
+      await deleteUser(currentUser.id)
 
-      if (response.ok) {
-        dispatch(deleteUserSuccess())
-        showSuccess("You have successfully deleted a profile")
-      } else {
-        dispatch(deleteUserFailure())
-        await handleApiError(response, showError)
-      }
     } catch (error) {
-      dispatch(deleteUserFailure(error))
       showError(error.message)
     }
   }
