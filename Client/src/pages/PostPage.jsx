@@ -19,6 +19,9 @@ import { getPostById } from "../api/postsApi"
 export default function PostPage() {
   const { id } = useParams()
 
+  // /api/images
+  const API_BASE = "https://marko-blog-bfdqeaf7dqacb3e7.westeurope-01.azurewebsites.net";
+
   const [loading, setLoading] = useState(true)
   const [post, setPost] = useState(null)
   const [commentsNumber, setCommentsNumber] = useState(0)
@@ -101,7 +104,7 @@ export default function PostPage() {
         <p className="text-xl">Author: {post.username}</p>
       </div>
 
-      <img src={post && `/api/images/${post.imageName}`} alt={post && post.title} className="mt-10 p-3 max-h-[300px] w-full object-contain" />
+      <img src={post && `${API_BASE}/Images/${post.imageName}`} alt={post && post.title} className="mt-10 p-3 max-h-[300px] w-full object-contain" />
 
       <div className="flex justify-between p-3 border-b border-slate-500 mx-auto w-full max-w-2xl">
         <span>{post && new Date(post.dateCreated).toLocaleDateString()}</span>
