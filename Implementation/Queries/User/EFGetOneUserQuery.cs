@@ -64,6 +64,7 @@ namespace Implementation.Queries.User
                 Email = user.User.Email,
                 ProfilePicture = user.User.ProfilePicture,
                 RoleName = user.User.Role.Name,
+                IdRole = user.User.Role.Id,
                 UserUseCases = user.User.UserUseCases.Select(x => new GetUserUseCaseDto
                 {
                     IdUseCase = x.IdUseCase,

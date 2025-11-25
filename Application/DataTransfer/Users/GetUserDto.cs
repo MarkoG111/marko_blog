@@ -17,6 +17,7 @@ namespace Application.DataTransfer.Users
         public string Username { get; set; }
         public string Email { get; set; }
         public string ProfilePicture { get; set; }
+        public int IdRole { get; set; }
         public string RoleName { get; set; }
         public int FollowersCount { get; set; }
         public int FollowingCount { get; set; }

@@ -5,8 +5,8 @@ import { Table, Pagination, Modal, Button } from "flowbite-react"
 import { HiOutlineExclamationCircle } from 'react-icons/hi'
 import { useError } from "../contexts/ErrorContext"
 import { useSuccess } from "../contexts/SuccessContext"
-import { handleApiError } from "../utils/handleApiUtils"
 import { getAvatarSrc } from "../utils/getAvatarSrc"
+import { getUsersPaged, deleteUser } from "../api/usersApi"
 
 export default function DashUsers() {
   const { currentUser } = useSelector((state) => state.user)
@@ -22,27 +22,9 @@ export default function DashUsers() {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const token = localStorage.getItem("token")
-        if (!token) {
-          showError("Token not found")
-          return
-        }
-
-        const response = await fetch(`/api/users?page=${currentPage}`, {
-          method: "GET",
-          headers: {
-            "Authorization": `Bearer ${token}`
-          }
-        })
-
-        if (response.ok) {
-          const data = await response.json()
-
-          setUsers(data.items)
-          setPageCount(data.pageCount)
-        } else {
-          await handleApiError(response, showError)
-        }
+        const data = await getUsersPaged(currentPage)
+        setUsers(data.items)
+        setPageCount(data.pageCount)
       } catch (error) {
         showError(error.message)
       }
@@ -57,25 +39,11 @@ export default function DashUsers() {
     setShowModal(false)
 
     try {
-      const token = localStorage.getItem("token")
-      if (!token) {
-        throw new Error("Token not found")
-      }
+      await deleteUser(idUserToDelete)
 
-      const response = await fetch(`/api/users/${idUserToDelete}`, {
-        method: "DELETE",
-        headers: {
-          "Authorization": `Bearer ${token}`
-        },
-      })
-
-      if (response.ok) {
-        setUsers((prev) => prev.filter((user) => user.id !== idUserToDelete))
-        setShowModal(false)
-        showSuccess("You have successfully deleted a user")
-      } else {
-        await handleApiError(response, showError)
-      }
+      setUsers((prev) => prev.filter((user) => user.id !== idUserToDelete))
+      setShowModal(false)
+      showSuccess("You have successfully deleted a user")
     } catch (error) {
       showError(error.message)
     }

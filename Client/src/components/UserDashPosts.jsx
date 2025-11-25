@@ -5,7 +5,8 @@ import { Table, Pagination, Modal, Button } from "flowbite-react"
 import { HiOutlineExclamationCircle } from 'react-icons/hi'
 import { useError } from "../contexts/ErrorContext"
 import { useSuccess } from "../contexts/SuccessContext"
-import { handleApiError } from "../utils/handleApiUtils"
+import { deletePost, deletePersonalPost } from "../api/postsApi"
+import { getUserById } from "../api/usersApi"
 
 export default function UserDashPosts() {
   const { currentUser } = useSelector((state) => state.user)
@@ -23,23 +24,8 @@ export default function UserDashPosts() {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const repsonse = await fetch(`/api/users/${currentUser.id}`, {
-          method: "GET"
-        })
-
-        const data = await repsonse.json()
-
-        if (repsonse.ok) {
-          setUserPosts(data.userPosts)
-
-          const token = localStorage.getItem("token")
-          if (!token) {
-            showError("Token not found")
-            return
-          }
-        } else {
-          await handleApiError(repsonse, showError)
-        }
+        const data = await getUserById(currentUser.id)
+        setUserPosts(data.userPosts)
       } catch (error) {
         showError(error.message)
       }
@@ -54,36 +40,22 @@ export default function UserDashPosts() {
     setShowModal(false)
 
     try {
-      const token = localStorage.getItem("token")
-      if (!token) {
-        showError("Token not found")
-        return
-      }
-
-      const postToDelete = userPosts.find((post) => post.id === idPostToDelete)
+      const postToDelete = userPosts.find((p) => p.id === idPostToDelete)
       if (!postToDelete) {
         showError("Post not found")
         return
       }
 
-      const { idUser } = postToDelete
+      const isOwner = currentUser.id === postToDelete.idUser
 
-      const url = currentUser.id === idUser ? `/api/posts/${idPostToDelete}/personal` : `/api/posts/${idPostToDelete}`
-
-      const response = await fetch(url, {
-        method: "DELETE",
-        headers: {
-          "Authorization": `Bearer ${token}`
-        },
-      })
-
-      if (response.ok) {
-        setUserPosts((prev) => prev.filter((post) => post.id !== idPostToDelete))
-        showSuccess("You have successfully deleted a post")
-        setPostDeleted(!postDeleted)
+      if (isOwner) {
+        await deletePersonalPost(idPostToDelete)
       } else {
-        await handleApiError(response, showError)
+        await deletePost(idPostToDelete)
       }
+
+      setUserPosts((prev) => prev.filter((p) => p.id !== idPostToDelete))
+      showSuccess("You have successfully deleted a post")
     } catch (error) {
       showError(error.message)
     }

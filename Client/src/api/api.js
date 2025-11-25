@@ -10,42 +10,40 @@ export async function apiClient(path, options = {}) {
 
     const token = !skipAuth ? localStorage.getItem("token") : null;
 
-    const headers = {
-        ...(options.headers || {}),
-        ...(token ? { Authorization: `Bearer ${token}` } : {})
-    };
+    let headers = {};
 
-    // Automatically set JSON headers only for plain objects
-    const isPlainObject = body && typeof body === 'object' && !(body instanceof FormData);
+    if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+    }
 
     let requestBody = body;
-    if (isPlainObject) {
-        headers['Content-Type'] = 'application/json';
+
+    // If NOT FormData send JSON
+    if (body && !(body instanceof FormData)) {
+        console.log('ad');
+        headers["Content-Type"] = "application/json";
         requestBody = JSON.stringify(body);
     }
 
-    let response;
-    try {
-        response = await fetch(`${API_BASE}${path}`, {
-            method,
-            headers,
-            body: requestBody,
-            ...rest
-        });
-    } catch (err) {
-        if (err instanceof TypeError) {
-            throw new Error("Network error. Please check your connection.");
-        }
-        throw err;
-    }
+    console.log("HEADERS SENT TO FETCH:", headers);
+    console.log("BODY IS FORMDATA:", body instanceof FormData);
 
-    // Handle non-OK responses
+    const finalHeaders = {
+        ...(rest.headers || {}),
+        ...headers
+    };
+
+    const response = await fetch(`${API_BASE}${path}`, {
+        method,
+        headers: finalHeaders,
+        body: requestBody,
+        ...rest
+    });
+
     if (!response.ok) throw await parseError(response);
 
-    // Handle 204 No Content
     if (response.status === 204) return null;
 
-    // Handle JSON / text
     return parseResponse(response);
 }
 
@@ -85,6 +83,5 @@ export const api = {
     post: (path, body, opts) => apiClient(path, { ...opts, method: 'POST', body }),
     put: (path, body, opts) => apiClient(path, { ...opts, method: 'PUT', body }),
     patch: (path, body, opts) => apiClient(path, { ...opts, method: 'PATCH', body }),
-    delete: (path, opts) => apiClient(path, { ...opts, method: 'DELETE' }),
-    upload: (path, formData, opts) => apiClient(path, { ...opts, method: 'POST', body: formData })
+    delete: (path, opts) => apiClient(path, { ...opts, method: 'DELETE' })
 };

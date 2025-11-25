@@ -29,6 +29,7 @@ namespace API.Services
                 LastName = user.LastName,
                 Email = user.Email,
                 RoleName = user.Role.Name,
+                IdRole = user.Role.Id,
                 ProfilePicture = user.ProfilePicture
             };
 
