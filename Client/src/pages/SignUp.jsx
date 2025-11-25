@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { Button, Label, Spinner, TextInput } from 'flowbite-react'
 import { useError } from '../contexts/ErrorContext'
 import OAuth from '../components/OAuth'
+import { registerUser } from '../api/authApi'
 
 export default function SignUp() {
   const [formData, setFormData] = useState({})
@@ -16,55 +17,15 @@ export default function SignUp() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    setLoading(true)
 
     try {
-      setLoading(true)
-
-      const res = await fetch('/api/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      })
-
-      setLoading(false)
-
-      if (!res.ok) {
-        const data = await res.json()
-
-        const fieldOrder = ['FirstName', 'LastName', 'Email', 'Username', 'Password']
-        const fieldDisplayNames = {
-          FirstName: 'First Name',
-          LastName: 'Last Name',
-          Email: 'Email',
-          Username: 'Username',
-          Password: 'Password',
-        }
-
-        let validationErrors = []
-
-        if (Array.isArray(data.errors)) {
-          validationErrors = data.errors.map((error) => error.ErrorMessage)
-        } else if (typeof data.errors === 'object') {
-          validationErrors = Object.entries(data.errors)
-            .sort(([a], [b]) => fieldOrder.indexOf(a) - fieldOrder.indexOf(b))
-            .map(([fieldName]) => {
-              const displayName = fieldDisplayNames[fieldName] || fieldName
-              return `${displayName} is required`
-            })
-            .flat()
-        } else {
-          validationErrors = [data.message]
-        }
-
-        validationErrors.forEach(showError)
-
-        return
-      }
-
-      navigate('/sign-in')
+      await registerUser(formData)
+      navigate("/sign-in")
     } catch (error) {
+      showError(error.message)
+    } finally {
       setLoading(false)
-      showError('An unexpected error occurred. Please try again later.')
     }
   }
 

@@ -8,7 +8,7 @@ import OAuth from '../components/OAuth'
 
 import { signInStart, signInSuccess, signInFailure } from '../redux/user/userSlice'
 import { useError } from '../contexts/ErrorContext'
-import { handleApiError } from '../utils/handleApiUtils'
+import { loginUser } from '../api/authApi'
 
 export default function SignIn() {
   const [formData, setFormData] = useState({})
@@ -29,33 +29,18 @@ export default function SignIn() {
     setLoading(true)
 
     try {
-      const response = await fetch('/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      })
+      const { token } = await loginUser(formData)
 
-      if (response.ok) {
-        const { token } = await response.json()
-        const decodedToken = jwtDecode(token)
-        const userProfile = decodedToken.ActorData
+      const decoded = jwtDecode(token)
+      const userProfile = decoded.ActorData
 
-        localStorage.setItem('token', token)
+      localStorage.setItem("token", token)
+      dispatch(signInSuccess(userProfile))
 
-        dispatch(signInSuccess(userProfile))
-
-        navigate('/')
-      } else {
-        const errors = await handleApiError(response, showError)
-        if (errors.length > 0) {
-          dispatch(signInFailure(errors))
-        }
-      }
+      navigate("/")
     } catch (error) {
-      if (!loading) {
-        showError("An error occurred while processing your request.")
-        dispatch(signInFailure(error.message))
-      }
+      showError(error.message)
+      dispatch(signInFailure(error.message))
     } finally {
       setLoading(false)
     }
