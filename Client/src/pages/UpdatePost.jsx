@@ -2,241 +2,160 @@ import { useEffect, useState } from "react"
 import { useSelector } from "react-redux"
 import { useParams } from "react-router-dom"
 import { Button, Checkbox, FileInput, TextInput } from "flowbite-react"
+import ReactQuill from "react-quill"
+import "react-quill/dist/quill.snow.css"
+
 import { useError } from "../contexts/ErrorContext"
 import { useSuccess } from "../contexts/SuccessContext"
-import { handleApiError } from "../utils/handleApiUtils"
-import ReactQuill from 'react-quill'
-import 'react-quill/dist/quill.snow.css'
+
+import { getPostById, updatePost, uploadPostImage } from "../api/postsApi"
+import { getAllCategoriesAuth } from "../api/categoriesApi"
 
 export default function UpdatePost() {
-  const [selectedCategories, setSelectedCategories] = useState([])
+  const { currentUser } = useSelector((state) => state.user)
+  const { postId } = useParams()
+
+  const [post, setPost] = useState(null)
   const [categories, setCategories] = useState([])
+  const [selectedCategories, setSelectedCategories] = useState([])
 
   const [imageFile, setImageFile] = useState(null)
   const [imagePreview, setImagePreview] = useState(null)
-  const [content, setEditContent] = useState('')
-  const [editData, setEditData] = useState({})
 
-  const { currentUser } = useSelector((state) => state.user)
-
-  const { postId } = useParams()
+  const [content, setContent] = useState("")
+  const [title, setTitle] = useState("")
 
   const { showError } = useError()
   const { showSuccess } = useSuccess()
 
   useEffect(() => {
-    try {
-      const fetchPost = async () => {
-        const token = localStorage.getItem("token")
-        if (!token) {
-          throw new Error("Token not found")
-        }
+    const load = async () => {
+      try {
+        const postData = await getPostById(postId)
+        setPost(postData)
 
-        try {
-          const response = await fetch(`/api/posts/${postId}`, {
-            method: "GET",
-            headers: {
-              "Authorization": `Bearer ${token}`
-            }
-          })
+        setTitle(postData.title)
+        setContent(postData.content)
+        setSelectedCategories(postData.categories.map((c) => c.id))
 
-          if (response.ok) {
-            const data = await response.json()
-
-            setEditData(data)
-          } else {
-            await handleApiError(response, showError)
-          }
-        } catch (error) {
-          showError(error.message)
-        }
+        const allCats = await getAllCategoriesAuth()
+        setCategories(allCats.items)
+      } catch (err) {
+        showError(err.message)
       }
-
-      fetchPost()
-    } catch (error) {
-      showError(error.message)
     }
-  }, [postId, showError])
 
-  const handleContentEditPostChange = (value) => {
-    setEditContent(value)
-  }
+    load()
+  }, [postId])
 
   const handleCategoryChange = (idCategory) => {
-    setSelectedCategories(prevCategories => {
-      if (prevCategories.includes(idCategory)) {
-        return prevCategories.filter(id => id !== idCategory)
-      } else {
-        return [...prevCategories, idCategory]
-      }
-    })
+    setSelectedCategories((prev) =>
+      prev.includes(idCategory)
+        ? prev.filter((id) => id !== idCategory)
+        : [...prev, idCategory]
+    )
   }
 
-  useEffect(() => {
-    const fetchCategoriesForUpdatePost = async () => {
-      try {
-        const token = localStorage.getItem("token")
-        if (!token) {
-          throw new Error("Token not found")
-        }
-
-        const queryParams = new URLSearchParams({
-          getAll: true
-        })
-
-        const response = await fetch(`/api/categories?${queryParams}`, {
-          method: "GET",
-          headers: {
-            "Authorization": `Bearer ${token}`
-          }
-        })
-
-        if (response.ok) {
-          const data = await response.json()
-
-          setCategories(data.items)
-        } else {
-          await handleApiError(response, showError)
-        }
-      } catch (error) {
-        showError(error.message)
-      }
-    }
-
-    fetchCategoriesForUpdatePost()
-  }, [showError])
-
-  useEffect(() => {
-    if (editData.categories && editData.categories.length > 0) {
-      const initialSelectedCategories = editData.categories.map(category => category.id)
-      setSelectedCategories(initialSelectedCategories)
-    }
-  }, [editData])
-
   const handleUploadImage = async () => {
-    if (!imageFile) {
-      showError("Please select an image")
-      return
-    }
-
-    const formData = new FormData()
-    formData.append("Image", imageFile)
+    if (!imageFile) return showError("Select an image first.")
 
     try {
-      const token = localStorage.getItem("token")
-      if (!token) {
-        throw new Error("Token not found")
-      }
+      const form = new FormData()
+      form.append("Image", imageFile)
 
-      const response = await fetch(`/api/images`, {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${token}`
-        },
-        body: formData
-      })
-
-      if (response.ok) {
-        const imageUrl = await response.json()
-        
-        setImagePreview(imageUrl)
-      } else {
-        await handleApiError(response, showError)
-      }
-    } catch (error) {
-      showError("Image upload failed")
+      const result = await uploadPostImage(form)
+      setImagePreview(result)
+    } catch (err) {
+      showError(err.message)
     }
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
 
-    const postData = {
-      Title: e.target.elements.title.value,
-      Content: content ? content : editData.content,
-      IdImage: imagePreview?.id ? imagePreview?.id : editData.idImage,
-      CategoryIds: selectedCategories
+    if (!title.trim()) return showError("Title cannot be empty.")
+
+    const payload = {
+      Title: title,
+      Content: content,
+      IdImage: imagePreview?.id || post.idImage,
+      CategoryIds: selectedCategories,
     }
 
     try {
-      const token = localStorage.getItem("token")
-      if (!token) {
-        throw new Error("Token not found")
-      }
+      const isPersonal = currentUser.id === post.idUser
+      await updatePost(post.id, payload, isPersonal)
 
-      const url = currentUser.id == editData.idUser ? `/api/posts/${editData.id}/personal` : `/api/posts/${editData.id}`
-
-      const response = await fetch(url, {
-        method: "PUT",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(postData)
-      })
-
-      if (response.ok) {
-        if (response.status == 204) {
-          showSuccess('Post updated successfully')
-        }
-      } else {
-        await handleApiError(response, showError)
-      }
-    } catch (error) {
-      showError('Cannot update post')
+      showSuccess("Post updated successfully")
+    } catch (err) {
+      showError(err.message)
     }
   }
+
+  if (!post) return <div className="p-10 text-center">Loading...</div>
 
   return (
     <div className="p-3 max-w-3xl mx-auto min-h-screen">
       <h1 className="text-center text-3xl my-7 font-semibold">Update post</h1>
 
       <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
-        <div className="flex flex-col gap-4 sm:flex-row justify-between">
-          <TextInput type="text" placeholder="Title" required id="title" className="flex-1" defaultValue={editData.title || ''} />
-        </div>
+        <TextInput
+          type="text"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          required
+        />
 
         <div className="flex flex-wrap gap-x-9 mb-6 gap-y-3">
           <h3 className="font-semibold w-full mt-5">Choose Categories</h3>
-          {categories.map((category, index) => (
-            <div key={index} className="flex items-center">
+
+          {categories.map((category) => (
+            <label key={category.id} className="flex items-center gap-2">
               <Checkbox
                 checked={selectedCategories.includes(category.id)}
                 onChange={() => handleCategoryChange(category.id)}
               />
-              <label className="ml-2">{category.name}</label>
-            </div>
+              {category.name}
+            </label>
           ))}
         </div>
 
-        <div className="flex gap-4 items-center justify-between border-4 border-teal-500 border-dotted p-3 mb-6 flex-wrap rounded-xl">
-          <FileInput type="file" accept="image/*" onChange={(e) => setImageFile(e.target.files[0])} />
-          <Button type="button" gradientDuoTone="purpleToBlue" size="sm" outline onClick={handleUploadImage}>Upload Image</Button>
+        <div className="flex gap-4 items-center justify-between border-4 border-teal-500 p-3 mb-6 rounded-xl border-dotted flex-wrap">
+          <FileInput
+            type="file"
+            accept="image/*"
+            onChange={(e) => setImageFile(e.target.files[0])}
+          />
 
-          {editData.imageName && !imagePreview && (
-            <div>
-              <img src={`/api/images/${editData.imageName}`} alt="Uploaded" className="max-w-full h-auto mb-4" />
-            </div>
-          )}
+          <Button type="button" gradientDuoTone="purpleToBlue" outline onClick={handleUploadImage}>
+            Upload Image
+          </Button>
 
-          {imagePreview && (
-            <div>
-              <img src={`/api/images/${imagePreview.imagePath}`} alt="Uploaded" className="max-w-full h-auto mb-4" />
-            </div>
-          )}
+          {imagePreview ? (
+            <img
+              src={`/api/images/${imagePreview.imagePath}`}
+              alt="Uploaded"
+              className="max-w-full h-auto mt-3"
+            />
+          ) : post.imageName ? (
+            <img
+              src={`/api/images/${post.imageName}`}
+              alt="Old"
+              className="max-w-full h-auto mt-3"
+            />
+          ) : null}
         </div>
 
         <ReactQuill
           theme="snow"
-          placeholder="Write something..."
-          id="contentEdit"
+          value={content}
+          onChange={setContent}
           className="h-72 mb-12"
-          value={content ? content : editData.content}
-          onChange={handleContentEditPostChange}
-          required
         />
 
-        <Button type="submit" gradientDuoTone="purpleToPink">Update post</Button>
+        <Button gradientDuoTone="purpleToPink" type="submit">
+          Update Post
+        </Button>
       </form>
     </div>
   )
