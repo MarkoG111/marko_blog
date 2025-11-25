@@ -1,11 +1,13 @@
 import { Link } from "react-router-dom"
 import PropTypes from "prop-types"
 export default function PostCard({ post }) {
+  const API_BASE = "https://marko-blog-bfdqeaf7dqacb3e7.westeurope-01.azurewebsites.net";
+
   return (
     <div className="group relative flex-1 min-w-[250px] w-full border h-[400px] overflow-hidden rounded-lg sm:w-[430px] border-teal-500 hover:border-2 transition-all">
       <Link to={`/post/${post.id}`}>
         <img
-          src={`/api/images/${post.imageName}`}
+          src={`${API_BASE}/Images/${post.imageName}`}
           alt="post cover"
           className="p-4 h-[210px] w-full object-contain group-hover:h-[220px] transition-all duration-300 z-20"
         />

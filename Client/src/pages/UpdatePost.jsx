@@ -28,6 +28,8 @@ export default function UpdatePost() {
   const { showError } = useError()
   const { showSuccess } = useSuccess()
 
+  const API_BASE = "https://marko-blog-bfdqeaf7dqacb3e7.westeurope-01.azurewebsites.net";
+
   useEffect(() => {
     const load = async () => {
       try {
@@ -139,7 +141,7 @@ export default function UpdatePost() {
             />
           ) : post.imageName ? (
             <img
-              src={`/api/images/${post.imageName}`}
+              src={`${API_BASE}/Images/${post.imageName}`}
               alt="Old"
               className="max-w-full h-auto mt-3"
             />

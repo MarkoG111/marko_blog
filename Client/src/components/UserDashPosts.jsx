@@ -21,6 +21,8 @@ export default function UserDashPosts() {
   const { showError } = useError()
   const { showSuccess } = useSuccess()
 
+  const API_BASE = "https://marko-blog-bfdqeaf7dqacb3e7.westeurope-01.azurewebsites.net";
+
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -85,7 +87,7 @@ export default function UserDashPosts() {
                 <Table.Cell>{new Date(post.dateCreated).toLocaleDateString()}</Table.Cell>
                 <Table.Cell>
                   <Link to={`/api/post/${post.id}`}>
-                    <img src={`/api/images/${post.imageName}`} alt={post.title} className="w-20 h-10 object-contain bg-gray-500" />
+                    <img src={`${API_BASE}/Images/${post.imageName}`} alt={post.title} className="w-20 h-10 object-contain bg-gray-500" />
                   </Link>
                 </Table.Cell>
                 <Table.Cell>

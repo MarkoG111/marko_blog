@@ -26,6 +26,8 @@ export default function AdminDashboard() {
 
   const { showError } = useError()
 
+  const API_BASE = "https://marko-blog-bfdqeaf7dqacb3e7.westeurope-01.azurewebsites.net";
+
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
@@ -182,7 +184,7 @@ export default function AdminDashboard() {
               <Table.Body key={post.id} className="divide-y">
                 <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
                   <Table.Cell>
-                    <img src={`/api/images/${post.imageName}`} alt={post.title} className="w-16 h-14 rounded-md " />
+                    <img src={`${API_BASE}/Images/${post.imageName}`} alt={post.title} className="w-16 h-14 rounded-md " />
                   </Table.Cell>
                   <Table.Cell className="">{post.title}</Table.Cell>
                   <Table.Cell className="">
