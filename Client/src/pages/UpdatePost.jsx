@@ -10,6 +10,7 @@ import { useSuccess } from "../contexts/SuccessContext"
 
 import { getPostById, updatePost, uploadPostImage } from "../api/postsApi"
 import { getAllCategoriesAuth } from "../api/categoriesApi"
+import { API_BASE } from "../api/api";
 
 export default function UpdatePost() {
   const { currentUser } = useSelector((state) => state.user)
@@ -27,8 +28,6 @@ export default function UpdatePost() {
 
   const { showError } = useError()
   const { showSuccess } = useSuccess()
-
-  const API_BASE = "https://marko-blog-bfdqeaf7dqacb3e7.westeurope-01.azurewebsites.net";
 
   useEffect(() => {
     const load = async () => {

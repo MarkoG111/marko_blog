@@ -7,6 +7,7 @@ import { useError } from "../contexts/ErrorContext"
 import { useSuccess } from "../contexts/SuccessContext"
 import { deletePost, deletePersonalPost } from "../api/postsApi"
 import { getUserById } from "../api/usersApi"
+import { API_BASE } from "../api/api";
 
 export default function UserDashPosts() {
   const { currentUser } = useSelector((state) => state.user)
@@ -20,8 +21,6 @@ export default function UserDashPosts() {
 
   const { showError } = useError()
   const { showSuccess } = useSuccess()
-
-  const API_BASE = "https://marko-blog-bfdqeaf7dqacb3e7.westeurope-01.azurewebsites.net";
 
   useEffect(() => {
     const fetchUser = async () => {

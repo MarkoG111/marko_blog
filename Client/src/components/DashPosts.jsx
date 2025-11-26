@@ -4,8 +4,8 @@ import { Link } from "react-router-dom"
 import { HiOutlineExclamationCircle } from 'react-icons/hi'
 import { Table, Pagination, Modal, Button } from "flowbite-react"
 import { useError } from "../contexts/ErrorContext"
-import { useSuccess } from "../contexts/SuccessContext"
 import { getPostsPagedAdmin, deletePost } from "../api/postsApi"
+import { API_BASE } from "../api/api";
 
 export default function DashPosts() {
   const { currentUser } = useSelector((state) => state.user)
@@ -17,9 +17,6 @@ export default function DashPosts() {
   const [postDeleted, setPostDeleted] = useState(false)
 
   const { showError } = useError()
-  const { showSuccess } = useSuccess()
-
-  const API_BASE = "https://marko-blog-bfdqeaf7dqacb3e7.westeurope-01.azurewebsites.net";
 
   useEffect(() => {
     const fetchAdminPosts = async () => {

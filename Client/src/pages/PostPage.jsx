@@ -15,12 +15,10 @@ import {
 
 import { addPostLike, removePostLike } from "../api/likesApi"
 import { getPostById } from "../api/postsApi"
+import { API_BASE } from "../api/api";
 
 export default function PostPage() {
   const { id } = useParams()
-
-  // /api/images
-  const API_BASE = "https://marko-blog-bfdqeaf7dqacb3e7.westeurope-01.azurewebsites.net";
 
   const [loading, setLoading] = useState(true)
   const [post, setPost] = useState(null)
