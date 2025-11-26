@@ -132,7 +132,7 @@ export default function UserPage() {
         </div>
 
         {!isCurrentUser && (
-          <div className="mt-6">
+          <div className="mt-6 flex justify-center">
             {isFollowing ? (
               <Button gradientDuoTone="purpleToPink" onClick={handleUnfollow}>
                 <RiUserUnfollowFill className="mr-2" /> Unfollow

@@ -12,6 +12,11 @@ export async function apiClient(path, options = {}) {
 
     let headers = {};
 
+    // If FormData, do not send Content-Type
+    if (body instanceof FormData) {
+        delete rest.headers?.["Content-Type"];
+    }
+
     if (token) {
         headers["Authorization"] = `Bearer ${token}`;
     }
@@ -24,9 +29,6 @@ export async function apiClient(path, options = {}) {
         headers["Content-Type"] = "application/json";
         requestBody = JSON.stringify(body);
     }
-
-    console.log("HEADERS SENT TO FETCH:", headers);
-    console.log("BODY IS FORMDATA:", body instanceof FormData);
 
     const finalHeaders = {
         ...(rest.headers || {}),
