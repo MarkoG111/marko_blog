@@ -38,7 +38,7 @@ namespace API.Controllers
         public IActionResult Accept([FromQuery] int id, [FromBody] UpsertAuthorRequestDto dtoRequest, [FromServices] IUpdateAuthorRequestCommand command)
         {
             dtoRequest.Id = id;
-            dtoRequest.IdRole = 2;
+            dtoRequest.IdRole = 3;
             _executor.ExecuteCommand(command, dtoRequest);
             return NoContent();
         }
@@ -47,7 +47,7 @@ namespace API.Controllers
         public IActionResult Reject([FromQuery] int id, [FromBody] UpsertAuthorRequestDto dtoRequest, [FromServices] IUpdateAuthorRequestCommand command)
         {
             dtoRequest.Id = id;
-            dtoRequest.IdRole = 3;
+            dtoRequest.IdRole = 2;
             _executor.ExecuteCommand(command, dtoRequest);
             return NoContent();
         }

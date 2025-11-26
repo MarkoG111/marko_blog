@@ -9,11 +9,11 @@ export const getAuthorRequests = (page = 1) =>
 export const acceptAuthorRequest = (id) =>
   api.put(`/authorrequests/accept?id=${id}`, {
     status: 2,
-    idRole: 2
+    idRole: 3
   });
 
 export const rejectAuthorRequest = (id) =>
   api.put(`/authorrequests/reject?id=${id}`, {
     status: 3,
-    idRole: 3
+    idRole: 2
   });
