@@ -28,10 +28,6 @@ namespace API
         {
             services.AddControllers();
 
-            services.AddDbContext<BlogContext>(options =>
-                options.UseSqlServer(_configuration.GetConnectionString("DefaultConnection"))
-            );
-
             services.Configure<JWTSettings>(_configuration.GetSection("JWT"));
             services.Configure<SMTPSettings>(_configuration.GetSection("SMTP"));
 
@@ -115,7 +111,7 @@ namespace API
             {
                 options.AddPolicy("AllowSpecificOrigin", builder =>
                 {
-                    builder.WithOrigins("http://localhost:5173",  "https://marko-blog.vercel.app")
+                    builder.WithOrigins("http://localhost:5173", "https://marko-blog.vercel.app")
                            .AllowAnyMethod()
                            .AllowAnyHeader()
                            .AllowCredentials();
@@ -134,7 +130,6 @@ namespace API
             using (var scope = app.ApplicationServices.CreateScope())
             {
                 var context = scope.ServiceProvider.GetRequiredService<BlogContext>();
-
 
                 EFDataAccess.Seed.DataSeeder.SeedInitialData(context);
             }
