@@ -2,14 +2,21 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
+COPY API/*.csproj API/
+COPY Application/*.csproj Application/
+COPY Domain/*.csproj Domain/
+COPY Implementation/*.csproj Implementation/
+COPY EFDataAccess/*.csproj EFDataAccess/
+
+RUN dotnet restore API/api.csproj
+
 COPY . .
 
-RUN dotnet restore "./API/api.csproj"
-RUN dotnet publish "./API/api.csproj" -c Release -o /app/publish
+RUN dotnet publish API/api.csproj -c Release -o /out
 
 # Runtime stage
-FROM mcr.microsoft.com/dotnet/aspnet:8.0
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
-COPY --from=build /app/publish .
+COPY --from=build /out .
 
 ENTRYPOINT ["dotnet", "API.dll"]
