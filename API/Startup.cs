@@ -28,6 +28,13 @@ namespace API
         {
             services.AddControllers();
 
+            services.AddDbContext<BlogContext>(options =>
+                options.UseSqlServer(
+                    _configuration.GetConnectionString("DefaultConnection"),
+                    sql => sql.EnableRetryOnFailure()
+                )
+            );
+
             services.Configure<JWTSettings>(_configuration.GetSection("JWT"));
             services.Configure<SMTPSettings>(_configuration.GetSection("SMTP"));
 
