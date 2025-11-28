@@ -2,13 +2,13 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# Kopiraj SVE projekte
+# Kopiraj ceo repo (sada uključuje My_Blog.sln, API/, Domain/, itd.)
 COPY . .
 
-# Restore zavisnosti preko solution fajla
+# Restore preko solution fajla (sada dostupan!)
 RUN dotnet restore "My_Blog.sln"
 
-# Build i publish API projekta
+# Publish API projekta
 RUN dotnet publish "API/api.csproj" -c Release -o /app/publish
 
 # Stage 2: Runtime
@@ -16,8 +16,7 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 WORKDIR /app
 EXPOSE 8080
 
-# Kopiraj objavljeni output
 COPY --from=build /app/publish .
 
-# Pokreni aplikaciju
+# Pokreni API
 ENTRYPOINT ["dotnet", "api.dll"]
