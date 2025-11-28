@@ -6,10 +6,10 @@ WORKDIR /src
 COPY . .
 
 # Restore zavisnosti za ceo solution (ako ima .sln) ili samo za API
-RUN dotnet restore "API/api.csproj"
+RUN dotnet restore "api.csproj"
 
 # Build i publish API projekta (automatski će uključiti sve zavisnosti)
-RUN dotnet publish "API/api.csproj" -c Release -o /app/publish
+RUN dotnet publish "api.csproj" -c Release -o /app/publish
 
 # Stage 2: Runtime
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
