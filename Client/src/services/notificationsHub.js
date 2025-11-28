@@ -1,9 +1,11 @@
 import * as signalR from "@microsoft/signalr";
+import { API_BASE } from "../api/api";
 
 export function createNotificationsHub(token) {
   const connection = new signalR.HubConnectionBuilder()
-    .withUrl("/api/notificationsHub", {
-      accessTokenFactory: () => token
+    .withUrl(`${API_BASE}/api/notificationsHub`, {
+      accessTokenFactory: () => token,
+      transport: signalR.HttpTransportType.WebSockets
     })
     .configureLogging(signalR.LogLevel.Information)
     .withAutomaticReconnect([0, 2000, 5000, 15000])
