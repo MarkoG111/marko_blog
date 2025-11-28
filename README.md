@@ -6,7 +6,7 @@ Marko's Blog is a modern blogging platform designed to provide users with an int
 It enables users to create, edit, and follow blog posts, interact through comments and likes, and receive **real-time notifications** powered by SignalR.  
 The system is built using **Clean Architecture** principles and follows the **CQRS (Command Query Responsibility Segregation)** pattern for high scalability and maintainability.
 
-🔗 Live Demo https://gacho-dev.rs/marko-blog
+🔗 Live Demo https://marko-blog.vercel.app/
 
 👨‍💻 Admin login: <br/>
 Username: admin <br/>
