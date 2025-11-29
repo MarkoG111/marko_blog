@@ -146,6 +146,8 @@ namespace API
             // Adds middleware for authentication, which allows the application to authenticate users based on incoming credentials or tokens.
             app.UseAuthentication();
 
+            app.UseAuthorization();
+
             // Adds middleware for Swagger support, which generates API documentation based on route and controller definitions in the application.
             app.UseSwagger();
             // Adds middleware that generates an HTML interface for the Swagger documentation, allowing the API specifications to be viewed in a web browser.

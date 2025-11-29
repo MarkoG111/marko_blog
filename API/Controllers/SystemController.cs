@@ -15,7 +15,7 @@ namespace API.Controllers
             _context = context;
         }
 
-        [HttpPost("seed")]
+        [HttpPost]
         public IActionResult Seed()
         {
             DataSeeder.SeedInitialData(_context);
