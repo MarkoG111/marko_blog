@@ -26,7 +26,7 @@ namespace EFDataAccess.Seed
 
         public static void SeedInitialData(BlogContext context)
         {
-            context.Database.Migrate();
+            // context.Database.Migrate();
 
             if (!context.Roles.Any())
             {
