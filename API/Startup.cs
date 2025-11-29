@@ -29,9 +29,8 @@ namespace API
             services.AddControllers();
 
             services.AddDbContext<BlogContext>(options =>
-                options.UseSqlServer(
-                    _configuration.GetConnectionString("DefaultConnection"),
-                    sql => sql.EnableRetryOnFailure()
+                options.UseNpgsql(
+                    _configuration.GetConnectionString("DefaultConnection")
                 )
             );
 
@@ -134,6 +133,16 @@ namespace API
                 app.UseDeveloperExceptionPage();
             }
 
+            using (var scope = app.ApplicationServices.CreateScope())
+            {
+                var context = scope.ServiceProvider.GetRequiredService<BlogContext>();
+
+                context.Database.EnsureDeleted();
+                context.Database.EnsureCreated();
+
+                EFDataAccess.Seed.DataSeeder.SeedInitialData(context);
+            }
+
             app.UseDefaultFiles();
             // Adds middleware that allows the server to serve static files, such as HTML, CSS, JavaScript, and images.
             app.UseStaticFiles();
@@ -156,7 +165,7 @@ namespace API
             });
 
             // Adds the GlobalExceptionHandler middleware component, which handles all exceptions that have not been processed yet and provides an appropriate response to the user or application.
-            app.UseMiddleware<GlobalExceptionHandler>();
+            // app.UseMiddleware<GlobalExceptionHandler>();
 
             app.UseSentryTracing();
 
