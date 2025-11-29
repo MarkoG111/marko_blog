@@ -42,7 +42,7 @@ namespace Implementation.Queries.User
             }
 
             var skipCount = search.PerPage * (search.Page - 1);
-            DateTime thirtyDaysAgo = DateTime.Now.AddDays(-30);
+            DateTime thirtyDaysAgo = DateTime.UtcNow.AddDays(-30);
 
             var response = new PagedResponse<GetUsersDto>
             {

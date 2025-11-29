@@ -46,14 +46,14 @@ namespace EFDataAccess
           switch (entry.State)
           {
             case EntityState.Added:
-              e.CreatedAt = DateTime.Now;
+              e.CreatedAt = DateTime.UtcNow;
               e.IsActive = true;
               e.IsDeleted = false;
               e.DeletedAt = null;
               e.ModifiedAt = null;
               break;
             case EntityState.Modified:
-              e.ModifiedAt = DateTime.Now;
+              e.ModifiedAt = DateTime.UtcNow;
               break;
           }
         }

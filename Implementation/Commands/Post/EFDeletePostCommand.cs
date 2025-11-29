@@ -40,7 +40,7 @@ namespace Implementation.Commands.Post
                 throw new AlreadyDeletedException(request, typeof(Domain.Post));
             }
 
-            post.DeletedAt = DateTime.Now;
+            post.DeletedAt = DateTime.UtcNow;
             post.IsActive = false;
             post.IsDeleted = true;
 

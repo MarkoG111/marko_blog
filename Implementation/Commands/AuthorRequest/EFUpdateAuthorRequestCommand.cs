@@ -34,7 +34,7 @@ namespace Implementation.Commands.AuthorRequest
             }
 
             authorRequest.Status = request.Status;
-            authorRequest.ModifiedAt = DateTime.Now;
+            authorRequest.ModifiedAt = DateTime.UtcNow;
 
             var user = _context.Users.FirstOrDefault(x => x.Id == authorRequest.IdUser);
 

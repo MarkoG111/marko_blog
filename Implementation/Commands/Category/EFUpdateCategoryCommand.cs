@@ -37,7 +37,7 @@ namespace Implementation.Commands.Category
             _validator.ValidateAndThrow(request);
 
             category.Name = request.Name;
-            category.ModifiedAt = DateTime.Now;
+            category.ModifiedAt = DateTime.UtcNow;
 
             _context.SaveChanges();
         }

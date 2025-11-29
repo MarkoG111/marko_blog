@@ -48,7 +48,7 @@ namespace Implementation.Commands.Comment
                 throw new AlreadyDeletedException(request, typeof(Domain.Comment));
             }
 
-            comment.DeletedAt = DateTime.Now;
+            comment.DeletedAt = DateTime.UtcNow;
             comment.IsDeleted = true;
             comment.IsActive = false;
 

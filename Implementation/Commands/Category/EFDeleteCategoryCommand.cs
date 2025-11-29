@@ -45,7 +45,7 @@ namespace Implementation.Commands.Category
                 throw new AlreadyDeletedException(id, typeof(Domain.Category));
             }
 
-            category.DeletedAt = DateTime.Now;
+            category.DeletedAt = DateTime.UtcNow;
             category.IsDeleted = true;
             category.IsActive = false;
 

@@ -40,7 +40,7 @@ namespace Implementation.Commands.Follow
             {
                 IdFollower = request.IdUser,
                 IdFollowing = request.IdFollowing,
-                FollowedAt = DateTime.Now
+                FollowedAt = DateTime.UtcNow
             };
 
             var notificationDto = new InsertNotificationDto
@@ -49,7 +49,7 @@ namespace Implementation.Commands.Follow
                 FromIdUser = _actor.Id,
                 Type = NotificationType.Follow,
                 Content = $"{_actor.Identity} started following you.",
-                CreatedAt = DateTime.Now
+                CreatedAt = DateTime.UtcNow
             };
 
             using (var transaction = await _context.Database.BeginTransactionAsync())

@@ -27,7 +27,7 @@ namespace Implementation.Queries.Comment
             var comments = _context.Comments.Include(x => x.User).Include(x => x.Likes).Include(x => x.Post).AsQueryable();
 
             var skipCount = search.PerPage * (search.Page - 1);
-            DateTime thirtyDaysAgo = DateTime.Now.AddDays(-30);
+            DateTime thirtyDaysAgo = DateTime.UtcNow.AddDays(-30);
 
             var response = new PagedResponse<GetCommentsDto>
             {

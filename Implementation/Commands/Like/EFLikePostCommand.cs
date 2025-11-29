@@ -62,7 +62,7 @@ namespace Implementation.Commands.Like
                             Type = NotificationType.Like,
                             Content = $"{_actor.Identity} liked your post.",
                             IdPost = request.IdPost,
-                            CreatedAt = DateTime.Now
+                            CreatedAt = DateTime.UtcNow
                         });
                     }
 

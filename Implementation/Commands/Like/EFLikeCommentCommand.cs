@@ -68,7 +68,7 @@ namespace Implementation.Commands.Like
                             Content = $"{_actor.Identity} liked your comment.",
                             IdPost = request.IdPost,
                             IdComment = request.IdComment,
-                            CreatedAt = DateTime.Now
+                            CreatedAt = DateTime.UtcNow
                         });
                     }
 
