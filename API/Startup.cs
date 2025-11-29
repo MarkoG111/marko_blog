@@ -166,7 +166,7 @@ namespace API
                 endpoints.MapControllers();
                 endpoints.MapHub<NotificationHub>("/api/notificationsHub");
 
-                endpoints.MapGet("/health", async context =>
+                endpoints.MapGet("/api/health", async context =>
                 {
                     await context.Response.WriteAsync("OK");
                 });
