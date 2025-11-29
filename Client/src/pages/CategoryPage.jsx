@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom"
 import { Pagination } from "flowbite-react"
 import { useError } from "../contexts/ErrorContext"
 import { getCategoryById } from "../api/categoriesApi"
+import { Link } from 'react-router-dom';
 
 export default function CategoryPage() {
   const { id } = useParams()
@@ -55,14 +56,24 @@ export default function CategoryPage() {
                   </div>
                 </div>
                 <div className="flex py-6 pl-16">
-                  <a href={`/post/${post.id}`} className="hover:underline hover:text-teal-500 dark:hover:text-teal-300 transition duration-200 ease-in-out">
+                  <Link
+                    to={`/post/${post.id}`}
+                    className="hover:underline hover:text-teal-500 dark:hover:text-teal-300 transition duration-200 ease-in-out"
+                  >
                     <h4 className="text-2xl">{post.title}</h4>
-                  </a>
+                  </Link>
                 </div>
                 <div className="text-left pl-16">
                   <ul className="flex flex-wrap gap-y-6 gap-x-5">
                     {post && post.categories.map((category) => (
-                      <li key={category.id} className="text-sm"><a href={`/category/${category.id}`} className="rounded p-2 dark:bg-gray-700 bg-gray-100 hover:underline hover:text-teal-500 dark:hover:text-teal-300 transition duration-200 ease-in-out">#{category.name}</a></li>
+                      <li key={category.id} className="text-sm">
+                        <Link
+                          to={`/category/${category.id}`}
+                          className="rounded p-2 dark:bg-gray-700 bg-gray-100 hover:underline hover:text-teal-500 dark:hover:text-teal-300 transition duration-200 ease-in-out"
+                        >
+                          #{category.name}
+                        </Link>
+                      </li>
                     ))}
                   </ul>
                 </div>
