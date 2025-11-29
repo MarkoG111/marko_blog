@@ -137,9 +137,7 @@ namespace API
             {
                 var context = scope.ServiceProvider.GetRequiredService<BlogContext>();
 
-                context.Database.EnsureDeleted();
-                context.Database.EnsureCreated();
-
+                context.Database.Migrate();
                 EFDataAccess.Seed.DataSeeder.SeedInitialData(context);
             }
 
