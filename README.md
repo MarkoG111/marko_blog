@@ -115,16 +115,26 @@ MyBlog/
 Install:
 - .NET SDK 8.0+
 - Node.js 18+
-- SQL Server Express (.\SQLEXPRESS)
+- PostgreSQL: Railway hosted instance or Local PostgreSQL (postgres default user)
 - EF Core CLI tool:
 ```bash
 dotnet tool install --global dotnet-ef --version 8.0.0
 ```
 
 ### 🗄️ 2. Backend Appsettings
-Config for backend is in: `API/appsettings.Development.json`
+Before running the API, create your local config file:
+Go to the API/ folder
+Copy the template file:
+```pgsql
+appsettings.Development.json.example → appsettings.Development.json
+```
+Open the new file and fill in your real values: <br/> 
+PostgreSQL connection string (Railway or local Postgres) <br/>
+JWT secret key (min 32 chars) <br/>
+Optional SMTP config <br/> 
+This file is NOT tracked by Git and must be created manually. <br/>
 
-🔐 JWT
+🔐 JWT Example
 ```json
 "JWT": {
     "Issuer": "http://localhost:5000",
@@ -134,7 +144,7 @@ Config for backend is in: `API/appsettings.Development.json`
 },
 ```
 
-✉ SMTP
+✉ SMTP Example
 ```json
 "SMTP": {
     "SenderEmail": "noreply@yourdomain.com",
@@ -145,27 +155,28 @@ Config for backend is in: `API/appsettings.Development.json`
 }
 ```
 
-### 🗃️ 3. Database Configuration
-The API uses appsettings.Development.json for the SQL Server connection.
-You MUST set your own instance name.
-Example (do NOT copy blindly):
+### 🗃️ 3. Database Configuration (PostgreSQL)
+API uses PostgreSQL connection from appsettings.Development.json. <br/>
+✔ Railway example:
 ```json
 "ConnectionStrings": {
-  "DefaultConnection": "Server=DESKTOP-XXXXXXX\\SQLEXPRESS;Database=blog;Trusted_Connection=True;TrustServerCertificate=True"
+  "DefaultConnection": "Host=YOUR_HOST;Port=YOUR_PORT;Database=railway;Username=postgres;Password=YOUR_PASSWORD;SSL Mode=Require;Trust Server Certificate=true"
 }
 ```
-To find your SQL instance:
-- Open SQL Server Management Studio
-- On the login window → see Server Name
-- Or open SQL Server Configuration Manager → SQL Server Services
-- Use that instance name in the connection string
 
-Common examples:
-- DESKTOP-ABC123\SQLEXPRESS
-- (localdb)\MSSQLLocalDB
-- .\SQLEXPRESS
+✔ Local PostgreSQL example:
+```json
+"ConnectionStrings": {
+  "DefaultConnection": "Host=localhost;Port=5432;Database=blog;Username=postgres;Password=yourpassword"
+}
+```
 
-### 🛠️ 4. Create Database
+📦 Required NuGet package:
+```bash
+dotnet add package Npgsql.EntityFrameworkCore.PostgreSQL
+```
+
+### 🛠️ 4. Apply Migrations
 Start migrations:
 ```bash
 cd EFDataAccess
@@ -195,6 +206,10 @@ VITE_FIREBASE_STORAGE_BUCKET=blog-a6b98.appspot.com
 VITE_FIREBASE_MESSAGING_SENDER_ID=311198757906
 VITE_FIREBASE_APP_ID=1:311198757906:web:3023a83a49eeb68fa494cb
 VITE_FIREBASE_MEASUREMENT_ID=G-TJWVQ5W4KH
+```
+🔗 API URL:
+```ini
+VITE_API_URL=http://localhost:5000/api
 ```
 
 ### ▶️ 7. Start Backend
