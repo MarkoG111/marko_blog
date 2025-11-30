@@ -71,11 +71,8 @@ MyBlog follows a **multi-layered architecture** adhering to **Clean Architecture
 - **Fetch API** – Communication with backend  
 
 ### 🗄 Database  
-### 🔄 Migration to PostgreSQL
 The project was originally built using **SQL Server**, but has since been fully migrated to **PostgreSQL** to improve portability, deployment compatibility (Railway/Postgres hosting), and development speed.  
 All Entity Framework configurations and migrations are adjusted accordingly.
-
-- **EF Core Migrations** – Database version control  
 
 ---
 
