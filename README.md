@@ -71,7 +71,10 @@ MyBlog follows a **multi-layered architecture** adhering to **Clean Architecture
 - **Fetch API** – Communication with backend  
 
 ### 🗄 Database  
-- **SQL Server** – Relational database  
+### 🔄 Migration to PostgreSQL
+The project was originally built using **SQL Server**, but has since been fully migrated to **PostgreSQL** to improve portability, deployment compatibility (Railway/Postgres hosting), and development speed.  
+All Entity Framework configurations and migrations are adjusted accordingly.
+
 - **EF Core Migrations** – Database version control  
 
 ---
@@ -179,8 +182,8 @@ dotnet add package Npgsql.EntityFrameworkCore.PostgreSQL
 ### 🛠️ 4. Apply Migrations
 Start migrations:
 ```bash
-cd EFDataAccess
-dotnet ef database update
+cd API
+dotnet ef database update --project ../EFDataAccess --startup-project .
 ```
 This creates the blog database automatically.
 
@@ -193,7 +196,16 @@ dotnet run
 ```
 If the database is empty, initial data will be inserted.
 
-### 💻 6. Frontend Environment Variables
+### ▶️ 6. Start Backend
+```bash
+cd Api
+dotnet restore
+dotnet run
+```
+Backend URL: http://localhost:5000
+Swagger: http://localhost:5000/swagger
+
+### 💻 7. Frontend Environment Variables
 In folder `Client/` create `.env` <br/>
 It must be next to vite.config.js.
 
@@ -212,15 +224,6 @@ VITE_FIREBASE_MEASUREMENT_ID=G-TJWVQ5W4KH
 VITE_API_URL=http://localhost:5000/api
 ```
 
-### ▶️ 7. Start Backend
-```bash
-cd Api
-dotnet restore
-dotnet run
-```
-Backend URL: http://localhost:5000
-Swagger: http://localhost:5000/swagger
-
 ### ▶️ 8. Start Frontend
 ```bash
 cd Client
@@ -229,3 +232,11 @@ npm run dev
 ```
 Frontend runs at: http://localhost:5173
 
+### 🎯 Why This Project Matters
+This project is the most important to me because it demonstrates the complete set of knowledge I have acquired:
+- Real-time communication (SignalR)
+- Clean Architecture + CQRS
+- JWT and Firebase combined authentication
+- Database migration (SQL Server → PostgreSQL)
+- Full-stack development (C#, EF Core, React, Redux)
+- Deployment to Vercel / Railway
