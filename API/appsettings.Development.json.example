@@ -1,0 +1,20 @@
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Host=YOUR_HOST;Port=5432;Database=YOUR_DB;Username=postgres;Password=YOUR_PASSWORD;SSL Mode=Require;Trust Server Certificate=true"
+  },
+
+  "JWT": {
+    "Issuer": "http://localhost:5000",
+    "Audience": "BlogClient",
+    "SecretKey": "your-dev-secret-key-min-32-chars",
+    "TokenExpiryMinutes": 120
+  },
+
+  "SMTP": {
+    "SenderEmail": "",
+    "Host": "",
+    "Port": 587,
+    "Username": "",
+    "Password": ""
+  }
+}

@@ -1,0 +1,93 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Ignore build outputs
+bin/
+obj/
+
+# Ignore config files if you don’t want them in the repo
+*.cache
+
+# Ignore debug folders specific to .NET versions
+obj/Debug/net*/  # This targets all versioned folders inside Debug
+
+*.dll
+bin/
+obj/
+**/Debug/
+**/Debug/net8.0/
+**/Debug/net8.0/*
+
+# Ignore .env
+*.env
+.env
+
+# Environment / secret configs
+appsettings.Development.json
+appsettings.Production.json
+appsettings.Local.json
+
+# Example configs ARE allowed
+!appsettings.Development.json.example
+
+*.pdb
+*.exe
+*.cache
+Application/bin/Debug/net8.0/Application.pdb
+Application/bin/Debug/net8.0/Domain.pdb
+
+package-lock.json
+
+/Debug/net8.0/
+Application/bin/Debug/net8.0/Application.pdb
+Application/bin/Debug/net8.0/Domain.pdb
+Application/obj/Debug/net8.0/Application.AssemblyInfo.cs
+Application/obj/Debug/net8.0/Application.AssemblyInfoInputs.cache
+Application/obj/Debug/net8.0/Application.csproj.AssemblyReference.cache
+Application/obj/Debug/net8.0/Application.pdb
+Application/obj/Debug/net8.0/Application.sourcelink.json
+Domain/bin/Debug/net8.0/Domain.pdb
+Domain/obj/Debug/net8.0/domain.AssemblyInfo.cs
+Domain/obj/Debug/net8.0/domain.AssemblyInfoInputs.cache
+Domain/obj/Debug/net8.0/domain.pdb
+Domain/obj/Debug/net8.0/domain.sourcelink.json
+EFDataAccess/bin/Debug/net8.0/Domain.pdb
+EFDataAccess/bin/Debug/net8.0/EFDataAccess.pdb
+EFDataAccess/obj/Debug/net8.0/EFDataAccess.AssemblyInfo.cs
+EFDataAccess/obj/Debug/net8.0/EFDataAccess.AssemblyInfoInputs.cache
+EFDataAccess/obj/Debug/net8.0/EFDataAccess.csproj.AssemblyReference.cache
+EFDataAccess/obj/Debug/net8.0/EFDataAccess.pdb
+EFDataAccess/obj/Debug/net8.0/EFDataAccess.sourcelink.json
+Implementation/bin/Debug/net8.0/Application.pdb
+Implementation/bin/Debug/net8.0/Domain.pdb
+Implementation/bin/Debug/net8.0/EFDataAccess.pdb
+Implementation/bin/Debug/net8.0/Implementation.pdb
+Implementation/obj/Implementation.csproj.nuget.dgspec.json
+Implementation/obj/Debug/net8.0/Implementation.AssemblyInfoInputs.cache
+Implementation/obj/Debug/net8.0/Implementation.csproj.AssemblyReference.cache
+Implementation/obj/Debug/net8.0/Implementation.pdb
+Implementation/obj/Debug/net8.0/Implementation.sourcelink.json
+Implementation/obj/project.assets.json
+Implementation/obj/project.nuget.cache
+Implementation/obj/Debug/net8.0/Implementation.AssemblyInfo.cs
