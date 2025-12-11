@@ -14,7 +14,7 @@ namespace EFDataAccess.Configurations
         {
             builder.Property(x => x.IdUser).IsRequired();
             builder.Property(x => x.Reason).IsRequired();
-            builder.Property(x => x.Status).HasColumnType("int");
+            builder.Property(x => x.Status).HasColumnType("integer");
         }
     }
 }

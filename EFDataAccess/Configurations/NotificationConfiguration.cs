@@ -14,7 +14,7 @@ namespace EFDataAccess.Configurations
         {
             builder.Property(x => x.Content).IsRequired().HasMaxLength(250);
             builder.Property(x => x.Link).IsRequired().HasMaxLength(250);
-            builder.Property(x => x.Type).IsRequired().HasColumnType("int");
+            builder.Property(x => x.Type).IsRequired().HasColumnType("integer");
             builder.Property(x => x.IsRead).IsRequired().HasDefaultValue(false);
             builder.Property(x => x.FromIdUser).IsRequired(false);
 
