@@ -26,6 +26,11 @@ namespace Implementation.Commands.Notification
         {
             var notifications = _context.Notifications.Where(n => n.IdUser == IdUser && !n.IsRead).ToList();
 
+            if (notifications.Count == 0)
+            {
+                return;
+            }
+
             notifications.ForEach(n => n.IsRead = true);
 
             _context.BulkUpdate(notifications);
