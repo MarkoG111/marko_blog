@@ -3,7 +3,7 @@ import { API_BASE } from "../api/api";
 
 export function createNotificationsHub(token) {
   const connection = new signalR.HubConnectionBuilder()
-    .withUrl(`${API_BASE}/api/notificationsHub`, {
+    .withUrl(`${API_BASE}/notificationsHub`, {
       accessTokenFactory: () => token,
       transport: signalR.HttpTransportType.WebSockets
     })
