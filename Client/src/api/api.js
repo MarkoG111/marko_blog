@@ -25,7 +25,6 @@ export async function apiClient(path, options = {}) {
 
     // If NOT FormData send JSON
     if (body && !(body instanceof FormData)) {
-        console.log('ad');
         headers["Content-Type"] = "application/json";
         requestBody = JSON.stringify(body);
     }

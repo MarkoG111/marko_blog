@@ -17,7 +17,6 @@ export default function UserDashPosts() {
   const [pageCount, setPageCount] = useState(1)
   const [showModal, setShowModal] = useState(false)
   const [idPostToDelete, setIdPostToDelete] = useState('')
-  const [postDeleted, setPostDeleted] = useState(false)
 
   const { showError } = useError()
   const { showSuccess } = useSuccess()
@@ -85,7 +84,7 @@ export default function UserDashPosts() {
               <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
                 <Table.Cell>{new Date(post.dateCreated).toLocaleDateString()}</Table.Cell>
                 <Table.Cell>
-                  <Link to={`/api/post/${post.id}`}>
+                  <Link to={`/post/${post.id}`}>
                     <img src={`${API_BASE}/Images/${post.imageName}`} alt={post.title} className="w-20 h-10 object-contain bg-gray-500" />
                   </Link>
                 </Table.Cell>
@@ -103,7 +102,7 @@ export default function UserDashPosts() {
                   <span onClick={() => { setShowModal(true); setIdPostToDelete(post.id) }} className="font-medium text-red-500 hover:underline cursor-pointer">Delete</span>
                 </Table.Cell>
                 <Table.Cell>
-                  <Link to={`/api/update-post/${post.id}`} className="text-teal-500 hover:underline">
+                  <Link to={`/update-post/${post.id}`} className="text-teal-500 hover:underline">
                     <span>Edit</span>
                   </Link>
                 </Table.Cell>
