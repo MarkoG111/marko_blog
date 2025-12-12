@@ -104,21 +104,10 @@ namespace Implementation.Commands.Comment
 
                 await transaction.CommitAsync();
 
-                // Slanje notifikacija u pozadini
-                _ = Task.Run(async () =>
+                foreach (var notification in notifications)
                 {
-                    try
-                    {
-                        foreach (var notification in notifications)
-                        {
-                            await _notificationService.CreateNotification(notification);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"Error sending notifications: {ex.Message}");
-                    }
-                });
+                    await _notificationService.CreateNotification(notification);
+                }
             }
             catch (Exception ex)
             {

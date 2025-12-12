@@ -23,19 +23,11 @@ export function createNotificationsHub(token) {
     }
   }
 
-  async function joinGroup(userId) {
-    try {
-      await connection.invoke("JoinGroup", userId.toString());
-    } catch (err) {
-      console.error("JoinGroup failed", err);
-    }
-  }
-
   async function stop() {
     if (connection) {
       await connection.stop();
     }
   }
 
-  return { start, joinGroup, stop };
+  return { start, stop };
 }

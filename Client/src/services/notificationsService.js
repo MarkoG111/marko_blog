@@ -15,7 +15,6 @@ export function NotificationsService() {
     connection = createNotificationsHub(token);
 
     await connection.start(onReceive);
-    await connection.joinGroup(userId);
   };
 
   const cleanupSignalR = async () => {

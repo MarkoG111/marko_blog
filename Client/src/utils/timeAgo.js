@@ -1,5 +1,5 @@
 export function timeAgo(timestamp) {
-  const date = new Date(timestamp + "Z") // Forces UTC interpretation
+  const date = new Date(timestamp);
   const now = new Date()
   const diffInSeconds = Math.floor((now - date) / 1000)
 

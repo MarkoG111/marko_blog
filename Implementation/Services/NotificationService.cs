@@ -48,10 +48,19 @@ namespace Implementation.Services
                 CreatedAt = DateTime.UtcNow
             };
 
-            _context.Notifications.AddAsync(notification);
+            await _context.Notifications.AddAsync(notification);
             await _context.SaveChangesAsync();
 
-            _notificationHubService.SendNotificationToUser(dto.IdUser, dto);
+            await _notificationHubService.SendNotificationToUser(dto.IdUser, new
+            {
+                id = notification.Id,
+                type = notification.Type,
+                content = notification.Content,
+                link = notification.Link,
+                isRead = notification.IsRead,
+                createdAt = notification.CreatedAt
+            });
         }
+
     }
 }

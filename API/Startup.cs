@@ -12,6 +12,7 @@ using Microsoft.Extensions.Options;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.SignalR;
 
 namespace API
 {
@@ -74,7 +75,27 @@ namespace API
                     ValidateLifetime = true,
                     ClockSkew = TimeSpan.Zero
                 };
+
+                // Allow JWT token from SignalR query string
+                options.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = context =>
+                    {
+                        var accessToken = context.Request.Query["access_token"];
+                        var path = context.HttpContext.Request.Path;
+
+                        // must match your hub endpoint
+                        if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/api/notificationsHub"))
+                        {
+                            context.Token = accessToken;
+                        }
+
+                        return Task.CompletedTask;
+                    }
+                };
             });
+
+            services.AddSingleton<IUserIdProvider, SignalRUserIdProvider>();
 
             services.AddSignalR();
 

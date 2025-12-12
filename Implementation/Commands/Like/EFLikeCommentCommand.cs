@@ -60,6 +60,8 @@ namespace Implementation.Commands.Like
                             throw new EntityNotFoundException(request.IdComment.Value, typeof(Domain.Comment));
                         }
 
+                        await transaction.CommitAsync();
+
                         await _notificationService.CreateNotification(new InsertNotificationDto
                         {
                             IdUser = comment.IdUser,
@@ -71,8 +73,6 @@ namespace Implementation.Commands.Like
                             CreatedAt = DateTime.UtcNow
                         });
                     }
-
-                    await transaction.CommitAsync();
                 }
                 catch (System.Exception)
                 {
