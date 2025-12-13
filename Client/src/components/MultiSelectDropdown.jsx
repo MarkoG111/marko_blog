@@ -32,14 +32,15 @@ export default function MultiSelectDropdown({ formFieldName, categories, onChang
   const handleSelectAllClick = (e) => {
     e.preventDefault()
 
+    const allIds = categories.map(c => c.id)
     const categoryInputs = optionsListRef.current.querySelectorAll("input")
 
     categoryInputs.forEach((input) => {
       input.checked = true
     })
 
-    setSelectedOptions([...categories])
-    onChange([...categories])
+    setSelectedOptions(allIds)
+    onChange(allIds)
   }
 
   const isClearSelectionEnabled = selectedOptions.length > 0

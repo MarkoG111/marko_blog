@@ -52,6 +52,11 @@ export default function PostsPage() {
   }, [currentPage, searchTerm, sortOrder, selectedCategories])
 
   useEffect(() => {
+    setCurrentPage(1)
+  }, [searchTerm, sortOrder, selectedCategories])
+
+
+  useEffect(() => {
     const loadCategories = async () => {
       try {
         const data = await getAllPublicCategories()
@@ -73,7 +78,7 @@ export default function PostsPage() {
             <label className="font-semibold">Search:</label>
             <TextInput
               value={searchTerm}
-              onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1) }}
+              onChange={(e) => { setSearchTerm(e.target.value) }}
             />
           </div>
 
