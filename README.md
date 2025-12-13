@@ -2,7 +2,6 @@
 
 **A full-stack blog platform built with ASP.NET Core 8.0 and React.js**  
 
-Marko's Blog is a modern blogging platform designed to provide users with an intuitive and interactive experience.  
 It enables users to create, edit, and follow blog posts, interact through comments and likes, and receive **real-time notifications** powered by SignalR.  
 The system is built using **Clean Architecture** principles and follows the **CQRS (Command Query Responsibility Segregation)** pattern for high scalability and maintainability.
 
