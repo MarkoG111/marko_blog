@@ -151,7 +151,7 @@ namespace API
             // Checks if the application is running in a development environment. If it is, adds the DeveloperExceptionPage middleware, which displays detailed information about exceptions during application development.
             if (env.IsDevelopment())
             {
-                app.UseDeveloperExceptionPage();
+                // app.UseDeveloperExceptionPage();
             }
 
             app.UseDefaultFiles();
@@ -178,7 +178,7 @@ namespace API
             });
 
             // Adds the GlobalExceptionHandler middleware component, which handles all exceptions that have not been processed yet and provides an appropriate response to the user or application.
-            // app.UseMiddleware<GlobalExceptionHandler>();
+            app.UseMiddleware<GlobalExceptionHandler>();
 
             app.UseSentryTracing();
 
