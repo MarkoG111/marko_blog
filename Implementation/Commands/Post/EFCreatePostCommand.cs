@@ -70,7 +70,7 @@ namespace Implementation.Commands.Post
 
             var followers = await _context.Followers.Where(f => f.IdFollowing == post.IdUser).Select(f => f.IdFollower).ToListAsync();
 
-            var notificationTasks = followers.Select(idFollower =>
+            foreach (var idFollower in followers)
             {
                 var notificationDto = new InsertNotificationDto
                 {
@@ -82,10 +82,9 @@ namespace Implementation.Commands.Post
                     IdPost = post.Id
                 };
 
-                return _notificationService.CreateNotification(notificationDto);
-            });
+                await _notificationService.CreateNotification(notificationDto);
+            }
 
-            await Task.WhenAll(notificationTasks);
         }
     }
 }
