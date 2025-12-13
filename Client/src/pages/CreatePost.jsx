@@ -9,6 +9,8 @@ import { getAllCategoriesAuth } from "../api/categoriesApi"
 import { uploadImage } from "../api/imagesApi"
 import { createPost } from "../api/postsApi"
 
+import { API_BASE } from "../api/api";
+
 export default function CreatePost() {
   const [selectedCategories, setSelectedCategories] = useState([])
   const [categories, setCategories] = useState([])
@@ -113,7 +115,7 @@ export default function CreatePost() {
 
           {imagePreview && (
             <div>
-              <img src={`/api/images/${imagePreview.imagePath}`} alt="Uploaded" className="max-w-full h-auto mb-4" />
+              <img src={`${API_BASE}/Images/${imagePreview.imagePath}`} alt="Uploaded" className="max-w-full h-auto mb-4" />
             </div>
           )}
         </div>
