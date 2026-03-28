@@ -40,6 +40,7 @@ export const ErrorProvider = ({ children }) => {
   )
 }
 
+
 ErrorProvider.propTypes = {
   children: PropTypes.node.isRequired,
 }
