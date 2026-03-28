@@ -1,0 +1,15 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\API",
+    "\\API\\Controllers",
+    "\\Application",
+    "\\Application\\DataTransfer",
+    "\\Application\\DataTransfer\\Comments",
+    "\\Client",
+    "\\Client\\src",
+    "\\Client\\src\\pages"
+  ],
+  "SelectedNode": "\\API\\Controllers\\CommentsController.cs",
+  "PreviewInSolutionExplorer": false
+}

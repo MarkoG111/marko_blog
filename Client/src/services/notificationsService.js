@@ -11,7 +11,7 @@ import { createNotificationsHub } from "./notificationsHub";
 export function NotificationsService() {
   let connection = null;
 
-  const initSignalR = async ({ token, userId, onReceive }) => {
+  const initSignalR = async ({ token, onReceive }) => {
     connection = createNotificationsHub(token);
 
     await connection.start(onReceive);
