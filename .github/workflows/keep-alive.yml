@@ -1,0 +1,23 @@
+name: Keep Server Alive
+
+on:
+    schedule:
+        # Ping every 5 minutes - sprečava fly.dev cold start
+        - cron: "*/5 * * * *"
+    workflow_dispatch: # Možeš i ručno da pokreneš iz GitHub UI
+
+jobs:
+    ping:
+        name: Ping Backend
+        runs-on: ubuntu-latest
+        steps:
+            - name: Wake up server
+              run: |
+                  echo "Pinging https://marko-blog.fly.dev ..."
+                  STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 "https://marko-blog.fly.dev/posts?perPage=1")
+                  echo "Response status: $STATUS"
+                  if [ "$STATUS" -ge 200 ] && [ "$STATUS" -lt 400 ]; then
+                    echo "Server is awake and responding."
+                  else
+                    echo "Server returned status $STATUS"
+                  fi
