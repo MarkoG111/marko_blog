@@ -21,5 +21,10 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 WORKDIR /app
 EXPOSE 8080
 COPY --from=build /app/publish .
+
+ENV ASPNETCORE_URLS=http://+:8080
+
 # Proveri da li se izlazni dll zove api.dll ili API.dll
 ENTRYPOINT ["dotnet", "api.dll"]
+
+
