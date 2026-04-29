@@ -4,9 +4,11 @@ import PostCard from "../components/PostCard"
 import CallToAction from "../components/CallToAction"
 import { useError } from "../contexts/ErrorContext"
 import { getHomePosts } from "../api/postsApi"
+import PostCardSkeleton from "../components/PostCardSkeleton"
 
 export default function Home() {
   const [posts, setPosts] = useState([])
+  const [loading, setLoading] = useState(true)
 
   const { showError } = useError()
 
@@ -17,6 +19,8 @@ export default function Home() {
         setPosts(data.items)
       } catch (error) {
         showError(error.message)
+      } finally {
+        setLoading(false)
       }
     }
 
@@ -38,19 +42,26 @@ export default function Home() {
       </div>
 
       <div className="max-w-6xl mx-auto p-3 flex flex-col gap-8 py-7">
-        {
-          posts && posts.length > 0 && (
-            <div className="flex flex-col gap-6">
-              <h2 className="text-2xl font-semibold text-center">Recent Posts</h2>
-              <div className="flex flex-wrap gap-4 mt-5 justify-center">
-                {posts.map((post) => (
-                  <PostCard key={post.id} post={post} />
-                ))}
-              </div>
-              <Link to={'/posts'} className="text-lg text-teal-500 hover:underline text-center">View all posts</Link>
+        {loading ? (   
+          <div className="flex flex-col gap-6">
+            <h2 className="text-2xl font-semibold text-center">Recent Posts</h2>
+            <div className="flex flex-wrap gap-4 mt-5 justify-center">
+              {[...Array(3)].map((_, i) => (
+                <PostCardSkeleton key={i} />
+              ))}
             </div>
-          )
-        }
+          </div>
+        ) : posts && posts.length > 0 && (
+          <div className="flex flex-col gap-6">
+            <h2 className="text-2xl font-semibold text-center">Recent Posts</h2>
+            <div className="flex flex-wrap gap-4 mt-5 justify-center">
+              {posts.map((post) => (
+                <PostCard key={post.id} post={post} />
+              ))}
+            </div>
+            <Link to={'/posts'} className="text-lg text-teal-500 hover:underline text-center">View all posts</Link>
+          </div>
+        )}
       </div>
     </div>
   )
