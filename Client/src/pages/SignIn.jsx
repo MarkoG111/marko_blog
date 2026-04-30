@@ -11,7 +11,10 @@ import { useError } from '../contexts/ErrorContext'
 import { loginUser } from '../api/authApi'
 
 export default function SignIn() {
-  const [formData, setFormData] = useState({})
+  const [formData, setFormData] = useState({
+    username: '',
+    password: '',
+  })
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
   const dispatch = useDispatch()
@@ -39,7 +42,11 @@ export default function SignIn() {
 
       navigate("/")
     } catch (error) {
-      showError(error.message)
+      if (Array.isArray(error.messages) && error.messages.length > 0) {
+        error.messages.forEach((message) => showError(message))
+      } else {
+        showError(error.message)
+      }
       dispatch(signInFailure(error.message))
     } finally {
       setLoading(false)

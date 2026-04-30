@@ -6,7 +6,13 @@ import OAuth from '../components/OAuth'
 import { registerUser } from '../api/authApi'
 
 export default function SignUp() {
-  const [formData, setFormData] = useState({})
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    username: '',
+    email: '',
+    password: '',
+  })
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
   const { showError } = useError()
@@ -17,13 +23,23 @@ export default function SignUp() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+
+    if (Object.values(formData).some((value) => !value)) {
+      showError('Please fill in all required fields.')
+      return
+    }
+
     setLoading(true)
 
     try {
       await registerUser(formData)
       navigate("/sign-in")
     } catch (error) {
-      showError(error.message)
+      if (Array.isArray(error.messages) && error.messages.length > 0) {
+        error.messages.forEach((message) => showError(message))
+      } else {
+        showError(error.message)
+      }
     } finally {
       setLoading(false)
     }

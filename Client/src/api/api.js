@@ -62,10 +62,26 @@ async function parseError(response) {
     const contentType = response.headers.get('content-type');
     let message = `API Error: ${response.status} ${response.statusText}`;
     let details = null;
+    let messages = [];
 
     if (contentType?.includes('application/json')) {
         details = await response.json();
-        message = details.message || details.error || message;
+        const modelStateErrors = details?.errors && !Array.isArray(details.errors) && typeof details.errors === "object"
+            ? Object.values(details.errors).flat().filter(Boolean)
+            : [];
+        const fluentValidationErrors = Array.isArray(details?.errors)
+            ? details.errors
+                .map((x) => x?.errorMessage || x?.ErrorMessage)
+                .filter(Boolean)
+            : [];
+        const validationErrors = [...modelStateErrors, ...fluentValidationErrors];
+
+        if (validationErrors.length > 0) {
+            messages = validationErrors;
+            message = validationErrors[0];
+        } else {
+            message = details.message || details.error || details.title || message;
+        }
     } else {
         const text = await response.text();
         if (text) {
@@ -76,6 +92,7 @@ async function parseError(response) {
     const err = new Error(message);
     err.status = response.status;
     err.details = details;
+    err.messages = messages.length > 0 ? messages : [message];
     return err;
 }
 
