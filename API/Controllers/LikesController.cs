@@ -27,8 +27,10 @@ namespace API.Controllers
         }
 
         [HttpPost("comments/{id}")]
-        public async Task<IActionResult> LikeComment([FromBody] LikeDto dtoRequest, [FromServices] ILikeCommentCommand command)
+        public async Task<IActionResult> LikeComment(int id, [FromBody] LikeDto dtoRequest, [FromServices] ILikeCommentCommand command)
         {
+            dtoRequest.IdUser = _actor.Id;
+            dtoRequest.IdComment = id;
             await _executor.ExecuteCommandAsync(command, dtoRequest);
             return Ok(dtoRequest);
         }

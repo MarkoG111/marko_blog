@@ -109,9 +109,19 @@ export default function CommentSection({ idPost, onCommentsNumberChange }) {
 
   // VOTING
   const vote = async (idComment, type) => {
+    if (!currentUser) {
+      showError('You must be signed in to like comments.')
+      return
+    }
+
     try {
       const comment = comments.find(c => c.id === idComment)
         || childComments.find(c => c.id === idComment)
+
+      if (!comment) {
+        showError('Comment not found.')
+        return
+      }
 
       const existing = comment.likes.find(l => l.idUser === currentUser.id)
 
